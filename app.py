@@ -4,4 +4,4 @@ app = Flask(__name__)
 
 @app.route("/")
 def home():
-    return "Hello this code was updated by magic"
+    return "Hello this code was updated by magic 2.0"
