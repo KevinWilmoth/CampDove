@@ -1,56 +1,34 @@
 import flask
+import pyodbc
 from flask import request, jsonify
+
+
+server = 'campdovetestsqlserver.database.windows.net'
+database = 'CampDoveTest'
+username = 'campdove_read'
+password = 'c@mpD0v3r3@d'   
+driver= '{ODBC Driver 17 for SQL Server}'
 
 app = flask.Flask(__name__)
 
-books = [
-    {'id': 0,
-     'title': 'A Fire Upon the Deep',
-     'author': 'Vernor Vinge',
-     'first_sentence': 'The coldsleep itself was dreamless.',
-     'year_published': '1992'},
-    {'id': 1,
-     'title': 'The Ones Who Walk Away From Omelas',
-     'author': 'Ursula K. Le Guin',
-     'first_sentence': 'With a clamor of bells that set the swallows soaring, the Festival of Summer came to the city Omelas, bright-towered by the sea.',
-     'published': '1973'},
-    {'id': 2,
-     'title': 'Dhalgren',
-     'author': 'Samuel R. Delany',
-     'first_sentence': 'to wound the autumnal city.',
-     'published': '1975'}
-]
-
-
 @app.route('/', methods=['GET'])
 def home():
-    return '''<h1>Distant Reading Archive</h1>
-<p>A prototype API for distant reading of science fiction novels.</p>'''
+    return '''<h1>Testing DB Read</h1>
+<p>A test for reading a DB</p>'''
 
 
-@app.route('/api/v1/resources/books/all', methods=['GET'])
-def api_all():
-    return jsonify(books)
+@app.route('/api/v1/dbread', methods=['GET'])
+def db_read():
+    test_string = ''
+    with pyodbc.connect('DRIVER='+driver+';SERVER=tcp:'+server+';PORT=1433;DATABASE='+database+';UID='+username+';PWD='+ password) as conn:
+        with conn.cursor() as cursor:
+            cursor.execute("SELECT fname, lname, phone, email from people")
+            row = cursor.fetchone()
+            while row:
+                test_string = test_string + '<p>' + (str(row[0]) + " " + str(row[1])) + " " + str(row[2]) + " " + str(row[3]) + '</p>';
+                row = cursor.fetchone()
+    return test_string;
 
-@app.route('/api/v1/resources/books', methods=['GET'])
-def api_id():
-    # Check if an ID was provided as part of the URL.
-    # If ID is provided, assign it to a variable.
-    # If no ID is provided, display an error in the browser.
-    if 'id' in request.args:
-        id = int(request.args['id'])
-    else:
-        return "Error: No id field provided. Please specify an id."
-
-    # Create an empty list for our results
-    results = []
-
-    # Loop through the data and match results that fit the requested ID.
-    # IDs are unique, but other fields might return many results
-    for book in books:
-        if book['id'] == id:
-            results.append(book)
-
-    # Use the jsonify function from Flask to convert our list of
-    # Python dictionaries to the JSON format.
-    return jsonify(results)
+# driver function
+#if __name__ == '__main__':
+    #app.run(debug = True)
