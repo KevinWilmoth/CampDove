@@ -6,10 +6,11 @@ from flask import request, jsonify
 #from azure.cosmos.partition_key import PartitionKey
 #import datetime
 
-#import config
+import config
 
 #HOST = config.settings['host']
 #MASTER_KEY = config.settings['master_key']
+MY_TEST = config.settings['my_test']
 #DATABASE_ID = config.settings['database_id']
 #CONTAINER_ID = config.settings['container_id']
 
@@ -17,8 +18,7 @@ app = flask.Flask(__name__)
 
 @app.route('/', methods=['GET'])
 def home():
-    return '''<h1>Testing Cosmos DB Interaction</h1>
-<p>A test for reading a DB</p>'''
+    return '<h1>Testing Cosmos DB Interaction</h1><p>' + MY_TEST + '</p>'
 
 #@app.route('/api/v1/AddItem', methods=['GET'])
 #def create_items():
