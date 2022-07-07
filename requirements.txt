@@ -1,4 +1,5 @@
 Flask==2.0.2
+azure
 azure-core==1.1.1
 azure-cosmos==4.1.0
 certifi==2019.11.28
