@@ -1,5 +1,5 @@
 import flask
-import pyodbc
+import pyodbC
 from flask import request, jsonify
 
 
