@@ -8,11 +8,11 @@ import datetime
 
 import config
 
-HOST = config.settings['host']
-MASTER_KEY = config.settings['master_key']
+#HOST = config.settings['host']
+#MASTER_KEY = config.settings['master_key']
 MY_TEST = config.settings['my_test']
-DATABASE_ID = config.settings['database_id']
-CONTAINER_ID = config.settings['container_id']
+#DATABASE_ID = config.settings['database_id']
+#CONTAINER_ID = config.settings['container_id']
 
 app = flask.Flask(__name__)
 
