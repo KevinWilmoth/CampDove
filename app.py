@@ -8,7 +8,7 @@ import datetime
 
 import config
 
-#HOST = config.settings['host']
+HOST = config.settings['host']
 #MASTER_KEY = config.settings['master_key']
 MY_TEST = config.settings['my_test']
 #DATABASE_ID = config.settings['database_id']
