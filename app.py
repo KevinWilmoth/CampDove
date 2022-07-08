@@ -1,6 +1,6 @@
 import flask
 from flask import request, jsonify
-#import azure.cosmos.documents as documents
+import azure.cosmos.documents as documents
 #import azure.cosmos.cosmos_client as cosmos_client
 #import azure.cosmos.exceptions as exceptions
 #from azure.cosmos.partition_key import PartitionKey
