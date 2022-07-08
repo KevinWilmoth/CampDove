@@ -41,6 +41,41 @@ def contacts():
 
     return render_template('contacts.html', FirstName = firstName, LastName = lastName, Phone = phone, Email = email)
 
+@app.route('/add_contact', methods=['GET'])
+def add_contact():
+    client    = cosmos_client.CosmosClient(HOST, {'masterKey': MASTER_KEY}, user_agent="CosmosDBPythonQuickstart", user_agent_overwrite=True)
+    db        = client.get_database_client(DATABASE_ID)
+    container = db.get_container_client(CONTAINER_ID)
+
+    fname         = request.args['fname']
+    lname         = request.args['lname']
+    phone         = request.args['phone']
+    email         = request.args['email']
+    item_id       = fname + lname
+    person = {'id'           : item_id,
+              'first_name'   : fname,
+              'last_name'    : lname,
+              'phone'        : phone,
+              'email'        : email
+            }
+
+    container.create_item(body=person)
+
+    item_list = list(container.read_all_items(max_item_count=10))
+    firstName = [];
+    lastName  = [];
+    phone     = [];
+    email     = [];
+
+    for doc in item_list:
+        firstName.append(doc.get('first_name'))
+        lastName.append(doc.get('last_name'))
+        phone.append(doc.get('phone'))
+        email.append(doc.get('email'))
+
+    #return "Person Added"
+    return render_template('contacts.html', FirstName = firstName, LastName = lastName, Phone = phone, Email = email)
+
 #@app.route('/api/v1/AddItem', methods=['GET'])
 #def create_items():
 #    client    = cosmos_client.CosmosClient(HOST, {'masterKey': MASTER_KEY}, user_agent="CosmosDBPythonQuickstart", user_agent_overwrite=True)
@@ -62,23 +97,6 @@ def contacts():
 #    container.create_item(body=person)
 
 #    return "Person Added"
-
-#@app.route('/api/v1/ReadItems', methods=['GET'])
-#def read_items():
-#    client    = cosmos_client.CosmosClient(HOST, {'masterKey': MASTER_KEY}, user_agent="CosmosDBPythonQuickstart", user_agent_overwrite=True)
-#    db        = client.get_database_client(DATABASE_ID)
-#    container = db.get_container_client(CONTAINER_ID)
-
-#    # NOTE: Use MaxItemCount on Options to control how many items come back per trip to the server
-#    #       Important to handle throttles whenever you are doing operations such as this that might
-#    #       result in a 429 (throttled request)
-#    item_list = list(container.read_all_items(max_item_count=10))
-    
-#    item_string = ''
-#    for doc in item_list:
-#        item_string = item_string + '<p>' + doc.get('id') + ' ' + doc.get('first_name') + ' ' + doc.get('last_name') + ' ' + doc.get('phone') + ' ' + doc.get('email') + '</p>'
-
-#    return item_string
 
 if __name__ == '__main__':
     app.run(debug = True)

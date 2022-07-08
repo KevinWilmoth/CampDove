@@ -31,15 +31,26 @@
           <th>Last Name</th>
           <th>Phone Number</th>
           <th>Email Address</th>
+          <th>Add User</th>
         </tr>
         {% for item in FirstName %}    
         <tr>               
             <td>{{FirstName[loop.index0]}}</td>
             <td>{{LastName[loop.index0]}}</td>
             <td>{{Phone[loop.index0]}}</td>  
-            <td>{{Email[loop.index0]}}</td>                
+            <td>{{Email[loop.index0]}}</td>   
+            <td></td>             
         </tr>
         {% endfor %}    
+        <tr>           
+            <form action="{{ url_for('add_contact') }}" method="get">
+                <td><input type="text" id="fname" name="fname"></td>
+                <td><input type="text" id="lname" name="lname"></td>
+                <td><input type="text" id="phone" name="phone"></td>  
+                <td><input type="text" id="email" name="email"></td> 
+                <td><button name="Add" type="submit">Add</button></td>         
+            </form>     
+        </tr>
       </table>
 </body>
 </html>
