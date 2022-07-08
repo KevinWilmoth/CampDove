@@ -1,10 +1,10 @@
 import flask
 from flask import request, jsonify
 import azure.cosmos.documents as documents
-#import azure.cosmos.cosmos_client as cosmos_client
-#import azure.cosmos.exceptions as exceptions
-#from azure.cosmos.partition_key import PartitionKey
-#import datetime
+import azure.cosmos.cosmos_client as cosmos_client
+import azure.cosmos.exceptions as exceptions
+from azure.cosmos.partition_key import PartitionKey
+import datetime
 
 import config
 
@@ -18,7 +18,7 @@ app = flask.Flask(__name__)
 
 @app.route('/', methods=['GET'])
 def home():
-    return '<h1>Testing Cosmos DB Interaction 2</h1><p>' + MY_TEST + '</p>'
+    return '<h1>Testing Cosmos DB Interaction 3</h1><p>' + MY_TEST + '</p>'
 
 #@app.route('/api/v1/AddItem', methods=['GET'])
 #def create_items():
