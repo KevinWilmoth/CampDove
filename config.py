@@ -6,4 +6,5 @@ settings = {
     'my_test': os.environ.get('MY_TEST'),
     'database_id': os.environ.get('COSMOS_DATABASE', 'CampDoveTest'),
     'container_id': os.environ.get('COSMOS_CONTAINER', 'Person'),
+    'base_url' : os.environ.get('BASE_URL', 'http://localhost:5000/'),
 }

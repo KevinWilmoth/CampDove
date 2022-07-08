@@ -1,5 +1,5 @@
 import flask
-from flask import request, jsonify
+from flask import request, render_template
 import azure.cosmos.documents as documents
 import azure.cosmos.cosmos_client as cosmos_client
 import azure.cosmos.exceptions as exceptions
@@ -13,51 +13,72 @@ MASTER_KEY = config.settings['master_key']
 MY_TEST = config.settings['my_test']
 DATABASE_ID = config.settings['database_id']
 CONTAINER_ID = config.settings['container_id']
+BASE_URL = config.settings['base_url']
 
 app = flask.Flask(__name__)
 
 @app.route('/', methods=['GET'])
 def home():
-    return '<h1>Testing Cosmos DB Interaction 3</h1><p>' + MY_TEST + '</p>'
+    return render_template('index.html')
 
-@app.route('/api/v1/AddItem', methods=['GET'])
-def create_items():
+@app.route('/contacts', methods=['GET'])
+def contacts():
     client    = cosmos_client.CosmosClient(HOST, {'masterKey': MASTER_KEY}, user_agent="CosmosDBPythonQuickstart", user_agent_overwrite=True)
     db        = client.get_database_client(DATABASE_ID)
     container = db.get_container_client(CONTAINER_ID)
 
-    fname         = request.args['fname']
-    lname         = request.args['lname']
-    phone         = request.args['phone']
-    email         = request.args['email']
-    item_id       = fname + lname
-    person = {'id'           : item_id,
-              'first_name'   : fname,
-              'last_name'    : lname,
-              'phone'        : phone,
-              'email'        : email
-            }
-
-    container.create_item(body=person)
-
-    return "Person Added"
-
-@app.route('/api/v1/ReadItems', methods=['GET'])
-def read_items():
-    client    = cosmos_client.CosmosClient(HOST, {'masterKey': MASTER_KEY}, user_agent="CosmosDBPythonQuickstart", user_agent_overwrite=True)
-    db        = client.get_database_client(DATABASE_ID)
-    container = db.get_container_client(CONTAINER_ID)
-
-    # NOTE: Use MaxItemCount on Options to control how many items come back per trip to the server
-    #       Important to handle throttles whenever you are doing operations such as this that might
-    #       result in a 429 (throttled request)
     item_list = list(container.read_all_items(max_item_count=10))
-    
-    item_string = ''
-    for doc in item_list:
-        item_string = item_string + '<p>' + doc.get('id') + ' ' + doc.get('first_name') + ' ' + doc.get('last_name') + ' ' + doc.get('phone') + ' ' + doc.get('email') + '</p>'
+    firstName = [];
+    lastName  = [];
+    phone     = [];
+    email     = [];
 
-    return item_string
+    for doc in item_list:
+        firstName.append(doc.get('first_name'))
+        lastName.append(doc.get('last_name'))
+        phone.append(doc.get('phone'))
+        email.append(doc.get('email'))
+
+    return render_template('contacts.html', FirstName = firstName, LastName = lastName, Phone = phone, Email = email)
+
+#@app.route('/api/v1/AddItem', methods=['GET'])
+#def create_items():
+#    client    = cosmos_client.CosmosClient(HOST, {'masterKey': MASTER_KEY}, user_agent="CosmosDBPythonQuickstart", user_agent_overwrite=True)
+#    db        = client.get_database_client(DATABASE_ID)
+#    container = db.get_container_client(CONTAINER_ID)
+
+#    fname         = request.args['fname']
+#    lname         = request.args['lname']
+#    phone         = request.args['phone']
+#    email         = request.args['email']
+#    item_id       = fname + lname
+#    person = {'id'           : item_id,
+#              'first_name'   : fname,
+#              'last_name'    : lname,
+#              'phone'        : phone,
+#              'email'        : email
+#            }
+
+#    container.create_item(body=person)
+
+#    return "Person Added"
+
+#@app.route('/api/v1/ReadItems', methods=['GET'])
+#def read_items():
+#    client    = cosmos_client.CosmosClient(HOST, {'masterKey': MASTER_KEY}, user_agent="CosmosDBPythonQuickstart", user_agent_overwrite=True)
+#    db        = client.get_database_client(DATABASE_ID)
+#    container = db.get_container_client(CONTAINER_ID)
+
+#    # NOTE: Use MaxItemCount on Options to control how many items come back per trip to the server
+#    #       Important to handle throttles whenever you are doing operations such as this that might
+#    #       result in a 429 (throttled request)
+#    item_list = list(container.read_all_items(max_item_count=10))
+    
+#    item_string = ''
+#    for doc in item_list:
+#        item_string = item_string + '<p>' + doc.get('id') + ' ' + doc.get('first_name') + ' ' + doc.get('last_name') + ' ' + doc.get('phone') + ' ' + doc.get('email') + '</p>'
+
+#    return item_string
 
 if __name__ == '__main__':
     app.run(debug = True)
