@@ -20,7 +20,7 @@ app = flask.Flask(__name__)
 def home():
     return '<h1>Testing Cosmos DB Interaction 3</h1><p>' + MY_TEST + '</p>'
 
-#@app.route('/api/v1/AddItem', methods=['GET'])
+@app.route('/api/v1/AddItem', methods=['GET'])
 def create_items():
     client    = cosmos_client.CosmosClient(HOST, {'masterKey': MASTER_KEY}, user_agent="CosmosDBPythonQuickstart", user_agent_overwrite=True)
     db        = client.get_database_client(DATABASE_ID)
