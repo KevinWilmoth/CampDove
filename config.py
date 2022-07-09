@@ -5,6 +5,7 @@ settings = {
     'master_key': os.environ.get('ACCOUNT_KEY'),
     'my_test': os.environ.get('MY_TEST'),
     'database_id': os.environ.get('COSMOS_DATABASE', 'CampDoveTest'),
-    'container_id': os.environ.get('COSMOS_CONTAINER', 'Person'),
+    'person_container_id': os.environ.get('PERSON_COSMOS_CONTAINER', 'Person'),
+    'church_container_id': os.environ.get('CHURCH_COSMOS_CONTAINER', 'Church'),
     'base_url' : os.environ.get('BASE_URL', 'http://localhost:5000/'),
 }
