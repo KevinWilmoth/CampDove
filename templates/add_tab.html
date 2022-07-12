@@ -25,31 +25,48 @@
 <body>
     <h1>Welcome to the Camp Dove Tab List</h1>
 
+    <h2>Add Camper Form</h2>
+    <form action="{{ url_for('add_tab') }}" method="post">
+      <label for="camper_first_name">First Name:</label>
+      <input type="text" id="camper_first_name" name="camper_first_name">
+      <br></br>
+      <label for="camper_last_name">Last Name:</label>
+      <input type="text" id="camper_last_name" name="camper_last_name">
+      <br></br>
+      <label for="church">Church:</label>
+      <input type="text" id="church" name="church">
+      <br></br>
+      <label for="contact_name">Contact Name:</label>
+      <input type="text" id="contact_name" name="contact_name">
+      <br></br>
+      <label for="worker_name">Worker:</label>
+      <input type="text" id="worker_name" name="worker_name">
+      <br></br>
+      <label for="no_limit">No Limit:</label>
+      <select name="no_limit" id="no_limit"><option value="True">TRUE</option><option value="False">FALSE</option></select></td>
+      <br></br>
+      <label for="weekly_limit">Weekly Limit:</label>
+      <input type="text" id="weekly_limit" name="weekly_limit">
+      <br></br>
+      <label for="prepaid_amount">Prepaid Amount:</label>
+      <input type="text" id="prepaid_amount" name="prepaid_amount">
+      <button name="Add Camper Tab" type="submit">Add Camper Tab</button>       
+  </form>
+
+  <h2>Camper List</h2>
     <table>
         <tr>
           <th>Camper Last Name</th>
           <th>Camper First Name</th>
           <th>Church</th>
-          <th>Contact Name</th>
-          <th>Worker Name</th>
-          <th>No Limit</th>
-          <th>Weekly Limit Amount</th>
-          <th>Daily Limit Amount</th>
-          <th>Prepaid Amount</th>
-          <th>Add/Delete Tab</th>
-          <th>Add Transaction</th>
+          <th>Delete Tab</th>
+          <th>Tab</th>
         </tr>
         {% for item in camperFirstName %}    
         <tr>               
             <td>{{camperLastName[loop.index0]}}</td>
             <td>{{camperFirstName[loop.index0]}}</td>
             <td>{{church[loop.index0]}}</td>  
-            <td>{{contactName[loop.index0]}}</td>   
-            <td>{{workerName[loop.index0]}}</td> 
-            <td>{{NoLimit[loop.index0]}}</td> 
-            <td>{{WeeklyLimit[loop.index0]}}</td> 
-            <td>{{DailyLimit[loop.index0]}}</td> 
-            <td>{{PrepaidLimitAmount[loop.index0]}}</td> 
             <td>
                 <form action="{{ url_for('delete_tab') }}" method="post">
                     <input type="hidden" id="id" name="id" value="{{ids[loop.index0]}}">
@@ -59,26 +76,11 @@
             <td>
                 <form action="{{ url_for('tab_detail') }}" method="post">
                     <input type="hidden" id="id" name="id" value="{{ids[loop.index0]}}">
-                    <button name="AddTransaction" type="submit">Add Transaction</button>  
+                    <button name="AddTransaction" type="submit">Tab</button>  
                 </form>
           </td> 
         </tr>
         {% endfor %}    
-        <tr>           
-            <form action="{{ url_for('add_tab') }}" method="post">
-                <td><input type="text" id="camper_last_name" name="camper_last_name"></td>
-                <td><input type="text" id="camper_first_name" name="camper_first_name"></td>
-                <td><input type="text" id="church" name="church"></td>  
-                <td><input type="text" id="contact_name" name="contact_name"></td> 
-                <td><input type="text" id="worker_name" name="worker_name"></td> 
-                <td><select name="no_limit" id="no_limit"><option value="True">TRUE</option><option value="False">FALSE</option></select></td>
-                <td><input type="text" id="weekly_limit" name="weekly_limit"></td>
-                <td><input type="text" id="daily_limit" name="daily_limit"></td>
-                <td><input type="text" id="prepaid_amount" name="prepaid_amount"></td>
-                <td><button name="Add" type="submit">Add</button></td>     
-                <td></td>    
-            </form>     
-        </tr>
       </table>
 </body>
 </html>

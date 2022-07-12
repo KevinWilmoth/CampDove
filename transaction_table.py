@@ -66,3 +66,12 @@ def get_transactions():
 
     item_list = list(container.read_all_items(max_item_count=100))
     return item_list
+
+def delete_transaction(id):
+    client    = cosmos_client.CosmosClient(HOST, {'masterKey': MASTER_KEY}, user_agent="CosmosDBPythonQuickstart", user_agent_overwrite=True)
+    db        = client.get_database_client(DATABASE_ID)
+    container = db.get_container_client(CONTAINER_ID)
+
+    container.delete_item(item=id, partition_key=id)
+    return 0
+

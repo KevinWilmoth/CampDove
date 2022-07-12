@@ -1,5 +1,7 @@
 import flask
 from flask import request, render_template
+from flask import redirect
+from flask import url_for
 import azure.cosmos.documents as documents
 import azure.cosmos.cosmos_client as cosmos_client
 import azure.cosmos.exceptions as exceptions
@@ -134,7 +136,7 @@ def add_tab():
 
     tab_table.add_tab(camper_fname, camper_lname, church_name, contact_name, worker_name, weekly_limit, prepaid_amount, no_limit,app)
 
-    return tabs()
+    return redirect('/tabs')
                           
 @app.route('/delete_tab', methods=['POST'])
 def delete_tab():
@@ -144,7 +146,7 @@ def delete_tab():
 
     tab_table.delete_tab(id)
 
-    return tabs()
+    return redirect('/tabs')
 
 @app.route('/tab_detail', methods=['POST'])
 def tab_detail():
@@ -154,38 +156,9 @@ def tab_detail():
 
     transactionDays    = []
     transactionAmounts = []
-
-    for doc in transactions:
-        transactionDays.append(doc.get('day_of_week'));
-        transactionAmounts.append(doc.get('amount'));
-
-    return render_template('tab_detail.html',  
-                           camperFirstName    = tab.get('camper_first_name'),
-                           camperLastNamee    = tab.get('camper_last_name'), 
-                           NoLimit            = tab.get('noLimit'),
-                           homeChurch         = tab.get('home_church'),
-                           dailyLimit         = tab.get('dailyLimit'),
-                           contactName        = tab.get('contact_name'),
-                           weeklyLimit        = tab.get('weeklyLimit'),
-                           workerName         = tab.get('workerName'),
-                           id                 = tab.get('id'),
-                           prepaidAmount      = tab.get('prepaid'),
-                           transactionDays    = transactionDays,
-                           transactionAmounts = transactionAmounts
-                          )
-
-@app.route('/add_transaction', methods=['POST'])
-def add_transaction():
-    id     = request.form['id']
-    amount = request.form['transaction_amount']
-    tab    = tab_table.get_tab(id)
-    transaction_table.add_transaction(id,amount)
-    transactions = transaction_table.get_transactions_for_camper(id,app)
-
-    transactionDays    = []
-    transactionAmounts = []
     transactionNumbers = []
     transactionTotals  = []
+    transactionIds     = []
 
     counter            = 1
     transactionTotal   = 0
@@ -195,13 +168,14 @@ def add_transaction():
         transactionTotal  = transactionTotal + transactionAmount
         transactionDays.append(doc.get('day_of_week'))
         transactionAmounts.append(str(transactionAmount))
+        transactionIds.append(doc.get('id'))
         transactionNumbers.append(str(counter))
         transactionTotals.append(str(transactionTotal))
         counter = counter + 1
 
     return render_template('tab_detail.html',  
                            camperFirstName    = tab.get('camper_first_name'),
-                           camperLastNamee    = tab.get('camper_last_name'), 
+                           camperLastName     = tab.get('camper_last_name'), 
                            NoLimit            = tab.get('noLimit'),
                            homeChurch         = tab.get('home_church'),
                            dailyLimit         = tab.get('dailyLimit'),
@@ -213,8 +187,24 @@ def add_transaction():
                            transactionDays    = transactionDays,
                            transactionAmounts = transactionAmounts,
                            transactionNumbers = transactionNumbers,
-                           transactionTotals  = transactionTotals
+                           transactionTotals  = transactionTotals,
+                           transactionIds     = transactionIds
                           )
+
+@app.route('/add_transaction', methods=['POST'])
+def add_transaction():
+    id     = request.form['id']
+    amount = request.form['transaction_amount']
+    transaction_table.add_transaction(id,amount)
+
+    return redirect(url_for('tab_detail'), code=307)
+
+@app.route('/delete_transaction', methods=['POST'])
+def delete_transaction():
+    transaction_id  = request.form['transaction_id']
+    transaction_table.delete_transaction(transaction_id)
+
+    return redirect(url_for('tab_detail'), code=307)
 
 @app.route('/tabs', methods=['GET'])
 def tabs():
