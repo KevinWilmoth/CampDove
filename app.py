@@ -12,6 +12,7 @@ import config
 import Church_Table
 import tab_table
 import transaction_table
+import camper_class
 
 HOST = config.settings['host']
 MASTER_KEY = config.settings['master_key']
@@ -26,101 +27,6 @@ app = flask.Flask(__name__)
 def home():
     return render_template('index.html')
 
-@app.route('/contacts', methods=['GET'])
-def contacts():
-    client    = cosmos_client.CosmosClient(HOST, {'masterKey': MASTER_KEY}, user_agent="CosmosDBPythonQuickstart", user_agent_overwrite=True)
-    db        = client.get_database_client(DATABASE_ID)
-    container = db.get_container_client(CONTAINER_ID)
-
-    item_list = list(container.read_all_items(max_item_count=10))
-    firstName = [];
-    lastName  = [];
-    phone     = [];
-    email     = [];
-
-    for doc in item_list:
-        firstName.append(doc.get('first_name'))
-        lastName.append(doc.get('last_name'))
-        phone.append(doc.get('phone'))
-        email.append(doc.get('email'))
-
-    return render_template('contacts.html', FirstName = firstName, LastName = lastName, Phone = phone, Email = email)
-
-@app.route('/add_contact', methods=['GET'])
-def add_contact():
-    client    = cosmos_client.CosmosClient(HOST, {'masterKey': MASTER_KEY}, user_agent="CosmosDBPythonQuickstart", user_agent_overwrite=True)
-    db        = client.get_database_client(DATABASE_ID)
-    container = db.get_container_client(CONTAINER_ID)
-
-    fname         = request.args['fname']
-    lname         = request.args['lname']
-    phone         = request.args['phone']
-    email         = request.args['email']
-    item_id       = fname + lname
-    person = {'id'           : item_id,
-              'first_name'   : fname,
-              'last_name'    : lname,
-              'phone'        : phone,
-              'email'        : email
-            }
-
-    container.create_item(body=person)
-
-    item_list = list(container.read_all_items(max_item_count=10))
-    firstName = [];
-    lastName  = [];
-    phone     = [];
-    email     = [];
-
-    for doc in item_list:
-        firstName.append(doc.get('first_name'))
-        lastName.append(doc.get('last_name'))
-        phone.append(doc.get('phone'))
-        email.append(doc.get('email'))
-
-    return render_template('contacts.html', FirstName = firstName, LastName = lastName, Phone = phone, Email = email)
-
-@app.route('/churches', methods=['GET'])
-def churches():
-    churches = Church_Table.get_contacts()
-    churchName             = [];
-    churchContactName      = [];
-    churchContactPhone     = [];
-    churchContactEmail     = [];
-
-    for doc in churches:
-        churchName.append(doc.get('church_name'))
-        churchContactName.append(doc.get('contact_name'))
-        churchContactPhone.append(doc.get('contact_phone'))
-        churchContactEmail.append(doc.get('contact_email')) 
-
-    return render_template('church_contacts.html', churchName = churchName, churchContactName = churchContactName, churchContactPhone = churchContactPhone, churchContactEmail = churchContactEmail)
-
-
-@app.route('/add_church_contact', methods=['GET'])
-def add_church_contact():
-    church_name    = request.args['church_name']
-    church_contact = request.args['church_contact']
-    church_phone   = request.args['church_phone']
-    church_email   = request.args['church_email']
-
-    Church_Table.add_contact(church_name, church_contact, church_phone, church_email);
-
-    churches = Church_Table.get_contacts()
-    churchName             = []
-    churchContactName      = []
-    churchContactPhone     = []
-    churchContactEmail     = []
-
-    for doc in churches:
-        churchName.append(doc.get('church_name'))
-        churchContactName.append(doc.get('contact_name'))
-        churchContactPhone.append(doc.get('contact_phone'))
-        churchContactEmail.append(doc.get('contact_email'))  
-
-    return render_template('church_contacts.html', churchName = churchName, churchContactName = churchContactName, churchContactPhone = churchContactPhone, churchContactEmail = churchContactEmail)
-   
-
 @app.route('/add_tabs', methods=['POST'])
 def add_tab():
     camper_fname   = request.form['camper_first_name']
@@ -128,7 +34,9 @@ def add_tab():
     church_name    = request.form['church']
     contact_name   = request.form['contact_name']
     worker_name    = request.form['worker_name']
-    no_limit       = request.form['no_limit']
+    no_limit       = 'False'
+    if "no_limit" in request.form:
+        no_limit = 'True'
     weekly_limit   = request.form['weekly_limit']
     prepaid_amount = request.form['prepaid_amount']
 
@@ -209,41 +117,89 @@ def delete_transaction():
 @app.route('/tabs', methods=['GET'])
 def tabs():
     tabs = tab_table.get_tabs()
-    camperFirstName      = []
-    camperLastName       = []
-    church_list          = []
-    contact_name_list    = []
-    worker_name_list     = []
-    no_limit_list        = []
-    weekly_limit_list    = []
-    daily_limit_list     = []
-    prepaid_amount_list  = []
-    id_list              = []
-
+    campers              = []
 
     for doc in tabs:
-        camperFirstName.append(doc.get('camper_first_name'))
-        camperLastName.append(doc.get('camper_last_name'))
-        church_list.append(doc.get('home_church'))
-        contact_name_list.append(doc.get('contact_name'))
-        worker_name_list.append(doc.get('workerName'))
-        no_limit_list.append(doc.get('noLimit'))
-        weekly_limit_list.append(doc.get('weeklyLimit'))
-        daily_limit_list.append(doc.get('dailyLimit'))
-        prepaid_amount_list.append(doc.get('prepaid'))
-        id_list.append(doc.get('id'))
+        c1 = camper_class.camper(doc.get('camper_first_name'),
+                                doc.get('camper_last_name'),
+                                doc.get('home_church'),
+                                doc.get('contact_name'),
+                                doc.get('workerName'),
+                                doc.get('noLimit'),
+                                doc.get('weeklyLimit'),
+                                doc.get('dailyLimit'),
+                                doc.get('prepaid'),
+                                doc.get('id')
+                   )
+        campers.append(c1)
 
-    return render_template('add_tab.html',  
-                           camperFirstName    = camperFirstName,
-                           camperLastName     = camperLastName, 
-                           church             = church_list, 
-                           contactName        = contact_name_list, 
-                           workerName         = worker_name_list,
-                           NoLimit            = no_limit_list,
-                           WeeklyLimit        = weekly_limit_list,
-                           DailyLimit         = daily_limit_list,
-                           PrepaidLimitAmount = prepaid_amount_list,
-                           ids                = id_list
+    campers.sort(key=lambda x: (x.lname, x.fname))
+
+    return render_template('add_tab.html', 
+                           campers = campers
+                          )
+
+@app.route('/show_tab', methods=['POST','GET'])
+def show_tab():
+    tabs = tab_table.get_tabs()
+    campers              = []
+
+    id     = request.form['id']
+    transactions = transaction_table.get_transactions_for_camper(id,app)
+    tab    = tab_table.get_tab(id)
+
+    transactionDays    = []
+    transactionAmounts = []
+    transactionNumbers = []
+    transactionTotals  = []
+    transactionIds     = []
+
+    counter            = 1
+    transactionTotal   = 0
+
+    for doc in transactions:
+        transactionAmount = float(doc.get('amount'))
+        transactionTotal  = transactionTotal + transactionAmount
+        transactionDays.append(doc.get('day_of_week'))
+        transactionAmounts.append(str(transactionAmount))
+        transactionIds.append(doc.get('id'))
+        transactionNumbers.append(str(counter))
+        transactionTotals.append(str(transactionTotal))
+        counter = counter + 1
+
+    for doc in tabs:
+        c1 = camper_class.camper(doc.get('camper_first_name'),
+                                doc.get('camper_last_name'),
+                                doc.get('home_church'),
+                                doc.get('contact_name'),
+                                doc.get('workerName'),
+                                doc.get('noLimit'),
+                                doc.get('weeklyLimit'),
+                                doc.get('dailyLimit'),
+                                doc.get('prepaid'),
+                                doc.get('id')
+                   )
+        campers.append(c1)
+
+    campers.sort(key=lambda x: (x.lname, x.fname))
+
+    return render_template('show_tab.html', 
+                           campers = campers,
+                           camperFirstName    = tab.get('camper_first_name'),
+                           camperLastName     = tab.get('camper_last_name'), 
+                           NoLimit            = tab.get('noLimit'),
+                           homeChurch         = tab.get('home_church'),
+                           dailyLimit         = tab.get('dailyLimit'),
+                           contactName        = tab.get('contact_name'),
+                           weeklyLimit        = tab.get('weeklyLimit'),
+                           workerName         = tab.get('workerName'),
+                           id                 = tab.get('id'),
+                           prepaidAmount      = tab.get('prepaid'),
+                           transactionDays    = transactionDays,
+                           transactionAmounts = transactionAmounts,
+                           transactionNumbers = transactionNumbers,
+                           transactionTotals  = transactionTotals,
+                           transactionIds     = transactionIds
                           )
 
 if __name__ == '__main__':

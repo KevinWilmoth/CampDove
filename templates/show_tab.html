@@ -8,7 +8,7 @@
           font-family: arial, sans-serif;
           border-collapse: collapse;
         }
-
+        
         td, th {
           border: 1px solid #FAF3E3;
           text-align: left;
@@ -16,31 +16,34 @@
           background-color: #FAF3E3;
           color: #1A4D2E;
         }
+        h1, h2 {
+          color: #000000;
+        }
 
         .camperTable tr:hover td{
           background-color:#999999;
-        }
-
-        h1, h2 {
-          color: #000000;
         }
 
         .leftSide {
           float: left;
           width: 700px;
         }
-        
+
         .addCamper {
         }
 
         .tabList {
+        }
+
+        .tabDetail{
+            float: right;
         }
         </style>
 </head>
 
 
 <body style="background-color: #FAF3E3">
-    <h1>Welcome to the Camp Dove Tab List</h1>
+    <h1 text-align="center">Welcome to the Camp Dove Tab List</h1>
 
     <div class="leftSide">
       <div class="addCamper">
@@ -82,7 +85,7 @@
 
     <div class="tabList">
       <h2>Camper List</h2>
-        <table class = "camperTable">
+        <table class="camperTable">
           <tr>
             <th>Camper Last Name</th>
             <th>Camper First Name</th>
@@ -112,6 +115,67 @@
         </table>
     </div>
   </div>
+  <div class="tab_detail">
+
+    <table>
+      <tr>
+          <th>Camper Name</th>
+          <td>{{camperFirstName}}&nbsp;{{camperLastName}}</td>
+          <th>No Limit</th>
+          <td>{{NoLimit}}</td>
+      </tr>
+      <tr>
+          <th>Home Church</th>
+          <td>{{homeChurch}}</td>
+          <th>Daily Limit Amount</th>
+          <td>{{dailyLimit}}</td>
+      </tr>
+      <tr>
+          <th>Contact Name</th>
+          <td>{{contactName}}</td>
+          <th>Weekly Limit Amount</th>
+          <td>{{weeklyLimit}}</td>
+      </tr>
+      <tr>
+          <th>Snack Shack Worker</th>
+          <td>{{workerName}}</td>
+          <th>Prepaid Amount</th>
+          <td>{{prepaidAmount}}</td>
+      </tr>   
+  </table>
+  <h2>Transactions</h2>
+  <table>
+      <tr>
+          <th>Transaction Number</th>
+          <th>Transaction Day</th>
+          <th>Transaction Amount</th>
+          <th>Weekly Total</th>
+          <th>Delete</th>
+      </tr> 
+      {% for item in transactionDays %}    
+      <tr>               
+          <td>{{transactionNumbers[loop.index0]}}</td>
+          <td>{{transactionDays[loop.index0]}}</td>
+          <td>{{transactionAmounts[loop.index0]}}</td>  
+          <td>{{transactionTotals[loop.index0]}}</td> 
+              <form action="{{ url_for('delete_transaction') }}" method="post">
+                  <input type="hidden" id="transaction_id" name="transaction_id" value="{{transactionIds[loop.index0]}}">
+                  <input type="hidden" id="id" name="id" value="{{id}}">
+                  <td><button name="Delete" type="submit">Delete</button></td>   
+              </form>  
+      </tr>
+      {% endfor %} 
+  </table>
+  <h2>New Transaction</h2>
+  <form action="{{ url_for('add_transaction') }}" method="post">
+      <label for="transaction_amount">Transaction Amount:</label>
+      <input type="text" id="transaction_amount" name="transaction_amount">
+      <input type="hidden" id="id" name="id" value="{{id}}">
+      <td><button name="Add" type="submit">Add</button></td>   
+  </form>  
+
+  </div>
+
 
   <script>
     function ShowTab(row) {
