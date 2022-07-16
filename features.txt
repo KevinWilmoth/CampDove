@@ -1,0 +1,22 @@
+Functionality
+2.  Edit Camper Info
+4.  Close Tables (with Action, Refund, No Refund, Paid in Full, etc.)
+5.  Warnings when close / over daily limit
+7.  Snack Shack Prices / With transaction Generator
+11. Warning to Parent and/or Counselor
+12. Way to Limit Pop/Candy
+15. Word Wheel for Contact Name, Church Name, Snack Shack Worker
+16. How Much Money - Running Total
+17. How Much Pop, Water, Candy
+
+Look and Feel:
+1.  Format Tables
+6.  Better looking Buttons
+9.  Android App
+10. iPad App
+13. On "No Limit" Grey out Weekly Limit
+14. Maybe Switch First and last Name
+15. Format Like Dollars
+
+Other
+8. Automated Test Cases
