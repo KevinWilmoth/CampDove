@@ -48,6 +48,41 @@ def add_tab(camperFirstName, camperLastName, homeChurch, contactName, workerName
     container.create_item(body=tab)
     return 0
 
+def edit_tab(camperFirstName, camperLastName, homeChurch, contactName, workerName, weeklyLimit, prepaid, noLimit,app, id):
+    client    = cosmos_client.CosmosClient(HOST, {'masterKey': MASTER_KEY}, user_agent="CosmosDBPythonQuickstart", user_agent_overwrite=True)
+    db        = client.get_database_client(DATABASE_ID)
+    container = db.get_container_client(CONTAINER_ID)
+    
+    noLimitBoolean = noLimit=='True'
+
+    if noLimitBoolean==True:
+        dailyLimit = 0.0
+        weeklyLimit = 0.0
+    elif float(prepaid) > float(weeklyLimit):
+        dailyLimit = float(prepaid) / 4
+    elif float(weeklyLimit) > 0:
+        dailyLimit = float(weeklyLimit) / 4      
+    else:
+        dailyLimit = 0.0
+
+    doc                      = container.read_item(item=id, partition_key=id)
+
+    app.logger.info('tab_table.add_tab prepaid in  = ' + str(doc.get('prepaid')) + '.')
+    app.logger.info('tab_table.add_tab prepaid out = ' + prepaid                 + '.')
+
+    doc['camper_first_name'] = camperFirstName
+    doc['camper_last_name']  = camperLastName
+    doc['home_church']       = homeChurch
+    doc['contact_name']      = contactName
+    doc['workerName']        = workerName
+    doc['weeklyLimit']       = float(weeklyLimit)
+    doc['dailyLimit']        = float(dailyLimit)
+    doc['prepaid']           = float(prepaid)
+    doc['noLimit']           = noLimitBoolean
+
+    container.replace_item(item=doc, body=doc)
+    return 0
+
 def get_tabs():
     client    = cosmos_client.CosmosClient(HOST, {'masterKey': MASTER_KEY}, user_agent="CosmosDBPythonQuickstart", user_agent_overwrite=True)
     db        = client.get_database_client(DATABASE_ID)
@@ -62,6 +97,17 @@ def get_tab(id):
     container = db.get_container_client(CONTAINER_ID)
 
     return container.read_item(item=id, partition_key=id)
+
+def close_tab(id, close_type):
+    client    = cosmos_client.CosmosClient(HOST, {'masterKey': MASTER_KEY}, user_agent="CosmosDBPythonQuickstart", user_agent_overwrite=True)
+    db        = client.get_database_client(DATABASE_ID)
+    container = db.get_container_client(CONTAINER_ID)
+
+    doc                   = container.read_item(item=id, partition_key=id)
+    doc['closed_status']  = close_type
+    container.replace_item(item=doc, body=doc)
+
+    return 0
 
 def delete_tab(id):
     client    = cosmos_client.CosmosClient(HOST, {'masterKey': MASTER_KEY}, user_agent="CosmosDBPythonQuickstart", user_agent_overwrite=True)

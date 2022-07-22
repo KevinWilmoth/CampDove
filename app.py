@@ -52,7 +52,33 @@ def add_tab():
     tab_table.add_tab(camper_fname, camper_lname, church_name, contact_name, worker_name, weekly_limit, prepaid_amount, no_limit,app)
 
     return redirect('/tabs')
-                          
+
+@app.route('/edit_tab', methods=['POST'])
+def edit_tab():
+    camper_fname   = request.form['camper_first_name']
+    camper_lname   = request.form['camper_last_name']
+    church_name    = request.form['church']
+    contact_name   = request.form['contact_name']
+    worker_name    = request.form['worker_name']
+    id             = request.form['id']
+    no_limit       = 'False'
+    
+    if "no_limit" in request.form:
+        no_limit = 'True'
+    
+    if 'weekly_limit' not in request.form:
+        weekly_limit = '0.0'
+    else:
+        weekly_limit   = request.form['weekly_limit']
+
+    prepaid_amount = request.form['prepaid_amount']
+    if prepaid_amount=='':
+        prepaid_amount = '0.0'
+
+    tab_table.edit_tab(camper_fname, camper_lname, church_name, contact_name, worker_name, weekly_limit, prepaid_amount, no_limit,app,id)
+
+    return redirect(url_for('show_tab'), code=307)
+
 @app.route('/delete_tab', methods=['POST'])
 def delete_tab():
     id   = request.form['id']
@@ -63,48 +89,15 @@ def delete_tab():
 
     return redirect('/tabs')
 
-@app.route('/tab_detail', methods=['POST'])
-def tab_detail():
-    id     = request.form['id']
-    tab    = tab_table.get_tab(id)
-    transactions = transaction_table.get_transactions_for_camper(id,app)
+@app.route('/close_tab', methods=['POST'])
+def close_tab():
+    id         = request.form['id']
+    close_type = request.form['close_tab_option']
+    app.logger.info('close tab option = [' + close_type + ']')    
 
-    transactionDays    = []
-    transactionAmounts = []
-    transactionNumbers = []
-    transactionTotals  = []
-    transactionIds     = []
+    tab_table.close_tab(id, close_type)
 
-    counter            = 1
-    transactionTotal   = 0
-
-    for doc in transactions:
-        transactionAmount = float(doc.get('amount'))
-        transactionTotal  = transactionTotal + transactionAmount
-        transactionDays.append(doc.get('day_of_week'))
-        transactionAmounts.append(str(transactionAmount))
-        transactionIds.append(doc.get('id'))
-        transactionNumbers.append(str(counter))
-        transactionTotals.append(str(transactionTotal))
-        counter = counter + 1
-
-    return render_template('tab_detail.html',  
-                           camperFirstName    = tab.get('camper_first_name'),
-                           camperLastName     = tab.get('camper_last_name'), 
-                           NoLimit            = tab.get('noLimit'),
-                           homeChurch         = tab.get('home_church'),
-                           dailyLimit         = tab.get('dailyLimit'),
-                           contactName        = tab.get('contact_name'),
-                           weeklyLimit        = tab.get('weeklyLimit'),
-                           workerName         = tab.get('workerName'),
-                           id                 = tab.get('id'),
-                           prepaidAmount      = tab.get('prepaid'),
-                           transactionDays    = transactionDays,
-                           transactionAmounts = transactionAmounts,
-                           transactionNumbers = transactionNumbers,
-                           transactionTotals  = transactionTotals,
-                           transactionIds     = transactionIds
-                          )
+    return redirect(url_for('show_tab'), code=307)
 
 @app.route('/add_transaction', methods=['POST'])
 def add_transaction():
@@ -121,12 +114,17 @@ def delete_transaction():
 
     return redirect(url_for('show_tab'), code=307)
 
-@app.route('/tabs', methods=['GET'])
+@app.route('/tabs', methods=['GET','POST'])
 def tabs():
     tabs = tab_table.get_tabs()
     campers              = []
+    churches             = []
+    contact_names        = []
 
     for doc in tabs:
+        closedClass     = ""
+        if (doc.get("closed_status") in ["Refund", "PaidInFull", "Donation"]):
+            closedClass = "warning"
         c1 = camper_class.camper(doc.get('camper_first_name'),
                                 doc.get('camper_last_name'),
                                 doc.get('home_church'),
@@ -136,14 +134,21 @@ def tabs():
                                 doc.get('weeklyLimit'),
                                 doc.get('dailyLimit'),
                                 doc.get('prepaid'),
+                                closedClass,
                                 doc.get('id')
                    )
+        if (doc.get('home_church') not in churches):
+            churches.append(doc.get('home_church'))
+        if (doc.get('contact_name') not in contact_names):
+            contact_names.append(doc.get('contact_name'))    
         campers.append(c1)
 
     campers.sort(key=lambda x: (x.lname, x.fname))
 
     return render_template('add_tab.html', 
-                           campers = campers
+                           campers       = campers,
+                           churhces      = churches,
+                           contact_names = contact_names
                           )
 
 @app.route('/show_tab', methods=['POST','GET'])
@@ -160,13 +165,20 @@ def show_tab():
     transactionNumbers  = []
     transactionTotals   = []
     transactionIds      = []
+    churches            = []
     weeklyLimitWarnings = []
+    contact_names       = []
+    tab_closed          = tab.get("closed_status") in ["Refund", "PaidInFull", "Donation"]
+    app.logger.info('close tab closed = [' + str(tab_closed) + ']')
 
     counter            = 1
     transactionTotal   = 0
 
         
     for doc in tabs:
+        closedClass     = ""
+        if (doc.get("closed_status") in ["Refund", "PaidInFull", "Donation"]):
+            closedClass = "warning"
         c1 = camper_class.camper(doc.get('camper_first_name'),
                                 doc.get('camper_last_name'),
                                 doc.get('home_church'),
@@ -176,8 +188,13 @@ def show_tab():
                                 doc.get('weeklyLimit'),
                                 doc.get('dailyLimit'),
                                 doc.get('prepaid'),
+                                closedClass,
                                 doc.get('id')
                    )
+        if (doc.get('home_church') not in churches):
+            churches.append(doc.get('home_church'))
+        if (doc.get('contact_name') not in contact_names):
+            contact_names.append(doc.get('contact_name'))   
         campers.append(c1)
 
     for transaction in transactions:
@@ -185,10 +202,10 @@ def show_tab():
         transactionAmount = float(transaction.get('amount'))
         transactionTotal  = transactionTotal + transactionAmount
         transactionDays.append(transaction.get('day_of_week'))
-        transactionAmounts.append(str(transactionAmount))
+        transactionAmounts.append("${:0,.2f}".format(transactionAmount))
         transactionIds.append(transaction.get('id'))
         transactionNumbers.append(str(counter))
-        transactionTotals.append(str(transactionTotal))
+        transactionTotals.append("${:0,.2f}".format(transactionTotal))
         weeklyLimitWarnings.append
         counter = counter + 1
         if (float(transactionTotal) > tab.get('weeklyLimit')) and (tab.get('noLimit') == False):
@@ -207,18 +224,22 @@ def show_tab():
                            camperLastName      = tab.get('camper_last_name'), 
                            NoLimit             = tab.get('noLimit'),
                            homeChurch          = tab.get('home_church'),
-                           dailyLimit          = tab.get('dailyLimit'),
+                           dailyLimit          = "${:0,.2f}".format(tab.get('dailyLimit')),
                            contactName         = tab.get('contact_name'),
-                           weeklyLimit         = tab.get('weeklyLimit'),
+                           weeklyLimit         = "${:0,.2f}".format(tab.get('weeklyLimit')),
                            workerName          = tab.get('workerName'),
                            id                  = tab.get('id'),
-                           prepaidAmount       = tab.get('prepaid'),
+                           prepaidAmount       = "${:0,.2f}".format(tab.get('prepaid')),
                            transactionDays     = transactionDays,
                            transactionAmounts  = transactionAmounts,
                            transactionNumbers  = transactionNumbers,
                            transactionTotals   = transactionTotals,
                            transactionIds      = transactionIds,
-                           weeklyLimitWarnings = weeklyLimitWarnings
+                           weeklyLimitWarnings = weeklyLimitWarnings,
+                           churches            = churches,
+                           contact_names       = contact_names,
+                           tab_not_closed      = not tab_closed,
+                           tab_closed          = tab_closed
                           )
 
 if __name__ == '__main__':

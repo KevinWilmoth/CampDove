@@ -68,6 +68,10 @@
         float: right;
         width: 49%;
       }
+
+      .warning {
+          background-color:yellow;
+      }
       </style>
 </head>
 
@@ -85,24 +89,46 @@
               <td><input type="text" id="camper_last_name" name="camper_last_name" placeholder="Last Name" required></td>
             </tr>
             <tr>        
-              <td><input type="text" id="church" name="church" placeholder="Church Name" required></td>
-              <td><input type="text" id="contact_name" name="contact_name"  placeholder="Contact Name" required></td>
+            <td>
+              <input type="list" list="churches" id="church" name="church" placeholder="Church Name" required>
+              <datalist id="churches">
+                {% for item in churches %}
+                  <option value="{{churches[loop.index0]}}">
+                {% endfor %}
+              </datalist>
+            </td>
+            <td>
+              <input type="text" list="contact_names" id="contact_name" name="contact_name"  placeholder="Contact Name" required>
+              <datalist id="contact_names">
+                {% for item in contact_names %}
+                  <option value="{{contact_names[loop.index0]}}">
+                {% endfor %}
+              </datalist>
+            </td>           
             </tr>
             <tr>
-              <td><input type="text" id="worker_name" name="worker_name" placeholder="Snach Shack Worker" required></td>
+              <td>
+                <input type="list" list="worker_names" id="worker_name" name="worker_name" placeholder="Snach Shack Worker" required>
+                <datalist id="worker_names">
+                    <option value="Kevin Wilmoth"></option>
+                    <option value="Mike Dearth"></option>
+                    <option value="Brad Hoffman"></option>
+                    <option value="Other"></option>
+                </datalist>
+              </td>
               <td></td>
             </tr>
             <tr>
               <th><label for="weekly_limit">Weekly Limit</label></th>
-              <td><input min="0.00" step="0.01" max="500" type="number" id="weekly_limit" name="weekly_limit"></td>
+              <td>$ &nbsp;<input min="0.00" step="0.01" max="500" type="number" id="weekly_limit" name="weekly_limit"></td>
             </tr>
             <tr>
               <th><label for="prepaid_amount">Prepaid Amount</label></th>
-              <td><input min="0.00" step="0.01" max="500" type="number" id="prepaid_amount" name="prepaid_amount"></td>
+              <td>$ &nbsp;<input min="0.00" step="0.01" max="500" type="number" id="prepaid_amount" name="prepaid_amount"></td>
             </tr>
             <tr>
               <th><label for="no_limit">No Limit</label></th>
-              <td><input type="checkbox" id="no_limit" name="no_limit" value="True"></td>
+              <td><input type="checkbox" onchange="valueChanged()" id="no_limit" name="no_limit" value="True"></td>
             </tr>
             <tr>
               <td><button name="Add Camper Tab" type="submit">Add Camper Tab</button></td>
@@ -124,11 +150,11 @@
             <th>Delete Tab</th>
           </tr>
           {% for item in campers %}    
-          <tr camper_id="{{campers[loop.index0].id}}" onclick="ShowTab(this)">               
-            <td>{{campers[loop.index0].lname}}</td>
-            <td>{{campers[loop.index0].fname}}</td>
-            <td>{{campers[loop.index0].church}}</td>  
-            <td>
+          <tr class="{{campers[loop.index0].closedClass}}" camper_id="{{campers[loop.index0].id}}" onclick="ShowTab(this)">               
+            <td class="{{campers[loop.index0].closedClass}}">{{campers[loop.index0].lname}}</td>
+            <td class="{{campers[loop.index0].closedClass}}">{{campers[loop.index0].fname}}</td>
+            <td class="{{campers[loop.index0].closedClass}}">{{campers[loop.index0].church}}</td>  
+            <td class="{{campers[loop.index0].closedClass}}">
                 <form action="{{ url_for('delete_tab') }}" method="post">
                     <input type="hidden" id="id" name="id" value="{{campers[loop.index0].id}}">
                     <button name="Delete" type="submit">Delete</button>  
@@ -147,12 +173,28 @@
   </div>
 
   <script>
-    function ShowTab(row) {
-      id = row.getAttribute("camper_id");
-      fromElementID = 'show_tab_' + id;
-      var form = document.getElementById(fromElementID);
-      form.submit();
+  function ShowTab(row) {
+    id = row.getAttribute("camper_id");
+    fromElementID = 'show_tab_' + id;
+    var form = document.getElementById(fromElementID);
+    form.submit();
+  }
+
+  function valueChanged()
+  {
+    var nolimit     = document.getElementById("no_limit");
+    var weeklylimit = document.getElementById("weekly_limit");
+    if(nolimit.checked)
+    {
+      weeklylimit.disabled=true;
+      weeklylimit.setAttribute("value","0.00");
     }
+    else
+    {
+      weeklylimit.disabled=false;
+    }
+  }
+
   function churchSearch() {
     var input, filter, table, tr, td, i, txtValue;
     input = document.getElementById("churchSearch");

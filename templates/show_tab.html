@@ -86,35 +86,58 @@
 
     <div class="leftSide">
       <div class="addCamper">
-      <h2>Add Camper Form</h2>
-        <form action="{{ url_for('add_tab') }}" method="post">
+      <h2>Edit Camper Form</h2>
+        <form action="{{ url_for('edit_tab') }}" method="post">
           <table>
             <tr>
-              <td><input type="text" id="camper_first_name" name="camper_first_name" placeholder="First Name" required></td>
-              <td><input type="text" id="camper_last_name" name="camper_last_name" placeholder="Last Name" required></td>
-            </tr>
-            <tr>        
-              <td><input type="text" id="church" name="church" placeholder="Church Name" required></td>
-              <td><input type="text" id="contact_name" name="contact_name"  placeholder="Contact Name" required></td>
+              <td><input type="text" id="camper_first_name" name="camper_first_name" placeholder="First Name" value="{{camperFirstName}}" required></td>
+              <td><input type="text" id="camper_last_name" name="camper_last_name" placeholder="Last Name" value="{{camperLastName}}" required></td>
             </tr>
             <tr>
-              <td><input type="text" id="worker_name" name="worker_name" placeholder="Snach Shack Worker" required></td>
+            <td>
+              <input type="list" list="churches" id="church" name="church" placeholder="Church Name" value="{{homeChurch}}" required>
+              <datalist id="churches">
+                {% for item in churches %}
+                  <option value="{{churches[loop.index0]}}">
+                {% endfor %}
+              </datalist>
+            </td>
+            <td>
+              <input type="text" list="contact_names" id="contact_name" name="contact_name"  placeholder="Contact Name" value="{{contactName}}" required>
+              <datalist id="contact_names">
+                {% for item in contact_names %}
+                  <option value="{{contact_names[loop.index0]}}">
+                {% endfor %}
+              </datalist>
+            </td>           
+            </tr>
+            <tr>
+              <td>
+                <input type="list" list="worker_names" id="worker_name" name="worker_name" placeholder="Snach Shack Worker" value="{{workerName}}" required>
+                <datalist id="worker_names">
+                    <option value="Kevin Wilmoth"></option>
+                    <option value="Mike Dearth"></option>
+                    <option value="Brad Hoffman"></option>
+                    <option value="Other"></option>
+                </datalist>
+              </td>
               <td></td>
             </tr>
             <tr>
               <th><label for="weekly_limit">Weekly Limit</label></th>
-              <td><input min="0.00" step="0.01" max="500" type="number" id="weekly_limit" name="weekly_limit"></td>
+              <td>$ &nbsp;<input min="0.00" step="0.01" max="500" type="number" id="weekly_limit" value="{{weeklyLimit}}" name="weekly_limit"></td>
             </tr>
             <tr>
               <th><label for="prepaid_amount">Prepaid Amount</label></th>
-              <td><input min="0.00" step="0.01" max="500" type="number" id="prepaid_amount" name="prepaid_amount"></td>
+              <td>$ &nbsp;<input min="0.00" step="0.01" max="500" type="number" id="prepaid_amount" value="{{prepaidAmount}}" name="prepaid_amount"></td>
             </tr>
             <tr>
               <th><label for="no_limit">No Limit</label></th>
-              <td><input type="checkbox" id="no_limit" name="no_limit" value="True"></td>
+              <td><input type="checkbox" id="no_limit" name="no_limit"  onchange="valueChanged()" value="True"{% if NoLimit %} checked{% endif %}></td>
             </tr>
             <tr>
-              <td><button name="Add Camper Tab" type="submit">Add Camper Tab</button></td>
+              <input type="hidden" id="id" name="id" value="{{id}}">
+              <td><button name="Add Camper Tab" type="submit">Edit Camper Tab</button></td>
               <td></td>
             </tr>
             </form>
@@ -133,11 +156,11 @@
             <th>Delete Tab</th>
           </tr>
           {% for item in campers %}    
-          <tr camper_id="{{campers[loop.index0].id}}" onclick="ShowTab(this)">               
-            <td>{{campers[loop.index0].lname}}</td>
-            <td>{{campers[loop.index0].fname}}</td>
-            <td>{{campers[loop.index0].church}}</td>  
-            <td>
+          <tr class="{{campers[loop.index0].closedClass}}" camper_id="{{campers[loop.index0].id}}" onclick="ShowTab(this)">               
+            <td class="{{campers[loop.index0].closedClass}}">{{campers[loop.index0].lname}}</td>
+            <td class="{{campers[loop.index0].closedClass}}">{{campers[loop.index0].fname}}</td>
+            <td class="{{campers[loop.index0].closedClass}}">{{campers[loop.index0].church}}</td>  
+            <td class="{{campers[loop.index0].closedClass}}">
                 <form action="{{ url_for('delete_tab') }}" method="post">
                     <input type="hidden" id="id" name="id" value="{{campers[loop.index0].id}}">
                     <button name="Delete" type="submit">Delete</button>  
@@ -150,6 +173,16 @@
 
           </tr>
           {% endfor %}    
+          <tr camper_id="new" onclick="ShowTab(this)">               
+            <td>Create New Camper</td>
+            <td></td>
+            <td></td>  
+            <td ></td> 
+            <form id="show_tab_new" action="{{ url_for('tabs') }}" method="post">
+                <input type="hidden" id="id" name="id" value="new">
+                <button name="AddTransaction" type="submit" style="color: transparent; background-color: transparent; border-color: transparent; cursor: default;">New</button>  
+            </form>
+          </tr>
         </table>
     </div>
   </div>
@@ -204,6 +237,7 @@
       </tr>
       {% endfor %} 
   </table>
+  {% if tab_not_closed %}
   <h2>New Transaction</h2>
   <form action="{{ url_for('add_transaction') }}" method="post">
       <label for="transaction_amount">Transaction Amount &nbsp;</label>
@@ -211,9 +245,22 @@
       <input type="hidden" id="id" name="id" value="{{id}}">
       <td><button name="Add" type="submit">Add</button></td>   
   </form>  
-
+  <h2>Close Tab</h2>
+  <form action="{{ url_for('close_tab') }}" method="post">
+    <input type="radio" id="refund" name="close_tab_option" value="Refund" checked> 
+    <label for="refund">Refund</label><br>
+    <input type="radio" id="paid" name="close_tab_option" value="PaidInFull">
+    <label for="paid">Paid In Full</label><br>
+    <input type="radio" id="donation" name="close_tab_option" value="Donation">
+    <label for="donation">Donation</label><br>
+    <input type="hidden" id="id" name="id" value="{{id}}">
+    <button name="CloseTab" type="submit">Close Tab</button>
+  </form>  
   </div>
-
+  {% endif %}
+  {% if tab_closed %}
+  <h2>Tab is Closed</h2>
+  {% endif %}
 
   <script>
     function ShowTab(row) {
@@ -222,6 +269,21 @@
       var form = document.getElementById(fromElementID);
       form.submit();
     }
+
+    function valueChanged()
+    {
+      var nolimit     = document.getElementById("no_limit");
+      var weeklylimit = document.getElementById("weekly_limit");
+      if(nolimit.checked)
+      {
+        weeklylimit.disabled=true;
+      }
+      else
+      {
+        weeklylimit.disabled=false;
+      }
+    }
+
     function churchSearch() {
     var input, filter, table, tr, td, i, txtValue;
     input = document.getElementById("churchSearch");
