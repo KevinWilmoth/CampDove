@@ -19,7 +19,6 @@ Other
 
 
 MVP:
-1. Security Features (Can't Access)
 2. Print out / Email
 3. Input Validation / Error Checking
 4. Backups
@@ -32,3 +31,5 @@ MVP:
 11. Domain Name
 12. Mobile Interfaces (Phone and Tablet)
 13. Daily Limit Warnings
+14. Test and Release Procedures
+15. How To Use / Documentation

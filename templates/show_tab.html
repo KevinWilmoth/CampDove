@@ -83,7 +83,9 @@
 
 <body style="background-color: #FAF3E3">
     <h1 text-align="center">Welcome to the Camp Dove Tab List</h1>
-
+    <form action="/logout" method="post">
+      <button text-align="center" name="Logout" type="submit">Logout</button>
+    </form>
     <div class="leftSide">
       <div class="addCamper">
       <h2>Edit Camper Form</h2>
@@ -240,11 +242,32 @@
   {% if tab_not_closed %}
   <h2>New Transaction</h2>
   <form action="{{ url_for('add_transaction') }}" method="post">
-      <label for="transaction_amount">Transaction Amount &nbsp;</label>
-      <input id="transaction_amount" name="transaction_amount" min="0.00" step="0.01" max="500" type="number" >
+      <label for="transaction_amount">Transaction Amount &nbsp;$</label>
+      <input id="transaction_amount" name="transaction_amount" min="0.00" step="0.01" max="500" type="number" value="0">
       <input type="hidden" id="id" name="id" value="{{id}}">
       <td><button name="Add" type="submit">Add</button></td>   
   </form>  
+  <h2>Transaction Calculator</h2>
+  <table>
+    <tr>
+        <th>Item Description</th>
+        <th>Item Price</th>
+        <th>Add Item</th>
+        <th>Subtract Item</th>
+    </tr> 
+    <tr>
+      <td>Pop or Water</td>
+      <td>$1.00</td>
+      <td><button name="Add" type="submit" onclick="addFunds(1)">+</button></td>  
+      <td><button name="Subtract" type="submit" onclick="subtractFunds(1)">-</button></td> 
+      <tr>
+        <td>Fruit Snacks</td>
+        <td>$0.75</td>
+        <td><button name="Add" type="submit" onclick="addFunds(.75)">+</button></td>  
+        <td><button name="Subtract" type="submit" onclick="subtractFunds(.75)">-</button></td> 
+      </tr>
+    </tr>
+</table>
   <h2>Close Tab</h2>
   <form action="{{ url_for('close_tab') }}" method="post">
     <input type="radio" id="refund" name="close_tab_option" value="Refund" checked> 
@@ -270,7 +293,29 @@
       form.submit();
     }
 
-    function valueChanged()
+  function addFunds(amount)
+  {
+    var transactionAmount    = document.getElementById("transaction_amount");
+    newValue = parseFloat(amount);
+    if(transactionAmount.value!="")
+    {
+      newValue = parseFloat(transactionAmount.value) + parseFloat(amount);
+    }
+
+    transactionAmount.value  = parseFloat(newValue);
+  }
+
+  function subtractFunds(amount)
+  {
+    var transactionAmount    = document.getElementById("transaction_amount");
+    newValue                 = parseFloat(transactionAmount.value) - parseFloat(amount);
+    if(newValue >= 0)
+    {
+      transactionAmount.value = parseFloat(newValue);
+    }
+  }
+
+  function valueChanged()
   {
     var nolimit     = document.getElementById("no_limit");
     var weeklylimit = document.getElementById("weekly_limit");

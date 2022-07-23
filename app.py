@@ -2,6 +2,7 @@ import flask
 from flask import request, render_template
 from flask import redirect
 from flask import url_for
+from flask import session
 import azure.cosmos.documents as documents
 import azure.cosmos.cosmos_client as cosmos_client
 import azure.cosmos.exceptions as exceptions
@@ -12,6 +13,8 @@ import config
 import tab_table
 import transaction_table
 import camper_class
+import os
+import User_Table
 
 HOST = config.settings['host']
 MASTER_KEY = config.settings['master_key']
@@ -21,13 +24,42 @@ CONTAINER_ID = config.settings['person_container_id']
 BASE_URL = config.settings['base_url']
 
 app = flask.Flask(__name__)
+app.secret_key = os.urandom(24)
 
-@app.route('/', methods=['GET'])
+@app.route('/', methods=['GET','POST'])
 def home():
+    if request.method == 'POST':
+        session.pop('user',None)
+        loginInfo = User_Table.login(request.form['username'],request.form['password'])
+        for user in loginInfo:
+            session['user']      = request.form['username']
+            session['user_role'] = user.get('role')
+            return redirect(url_for('tabs'))
+
+    return render_template('index.html')
+
+@app.route('/logout', methods=['GET','POST'])
+def logout():
+    session.pop('user',None)
+    session.pop('user_role',None)
+    return render_template('index.html')
+
+@app.route('/index', methods=['GET','POST'])
+def index():
+    if request.method == 'POST':
+        session.pop('user',None)
+        session.pop('user_role',None)
+        if request.form['password'] == 'password':
+            session['user'] = request.form['username']
+            return redirect(url_for('tabs'))
+
     return render_template('index.html')
 
 @app.route('/add_tabs', methods=['POST'])
 def add_tab():
+    if(checkAdminAccess()<0):
+        return redirect(url_for('index'))
+        
     camper_fname   = request.form['camper_first_name']
     camper_lname   = request.form['camper_last_name']
     church_name    = request.form['church']
@@ -55,6 +87,9 @@ def add_tab():
 
 @app.route('/edit_tab', methods=['POST'])
 def edit_tab():
+    if(checkAdminAccess()<0):
+        return redirect(url_for('index'))
+
     camper_fname   = request.form['camper_first_name']
     camper_lname   = request.form['camper_last_name']
     church_name    = request.form['church']
@@ -81,6 +116,9 @@ def edit_tab():
 
 @app.route('/delete_tab', methods=['POST'])
 def delete_tab():
+    if(checkAdminAccess()<0):
+        return redirect(url_for('index'))
+
     id   = request.form['id']
 
     app.logger.info('app.delete_tab id = [' + id + ']')
@@ -91,6 +129,8 @@ def delete_tab():
 
 @app.route('/close_tab', methods=['POST'])
 def close_tab():
+    checkAdminAccess()
+
     id         = request.form['id']
     close_type = request.form['close_tab_option']
     app.logger.info('close tab option = [' + close_type + ']')    
@@ -101,6 +141,9 @@ def close_tab():
 
 @app.route('/add_transaction', methods=['POST'])
 def add_transaction():
+    if(checkAdminAccess()<0):
+        return redirect(url_for('index'))
+
     id     = request.form['id']
     amount = request.form['transaction_amount']
     transaction_table.add_transaction(id,amount)
@@ -109,6 +152,9 @@ def add_transaction():
 
 @app.route('/delete_transaction', methods=['POST'])
 def delete_transaction():
+    if(checkAdminAccess()<0):
+        return redirect(url_for('index'))
+
     transaction_id  = request.form['transaction_id']
     transaction_table.delete_transaction(transaction_id)
 
@@ -116,6 +162,16 @@ def delete_transaction():
 
 @app.route('/tabs', methods=['GET','POST'])
 def tabs():
+    if(checkAdminAccess()<0):
+        return redirect(url_for('index'))
+
+    if 'user_role' not in session:
+        return redirect(url_for('index'))
+
+    if session['user_role'] != 'SnackShackAdmin':
+        app.logger.info('Incorrect Role!')
+        return redirect(url_for('index'))
+
     tabs = tab_table.get_tabs()
     campers              = []
     churches             = []
@@ -153,6 +209,9 @@ def tabs():
 
 @app.route('/show_tab', methods=['POST','GET'])
 def show_tab():
+    if(checkAdminAccess()<0):
+        return redirect(url_for('index'))
+
     tabs = tab_table.get_tabs()
     campers              = []
 
@@ -243,6 +302,19 @@ def show_tab():
                            tab_not_closed      = not tab_closed,
                            tab_closed          = tab_closed
                           )
+
+def checkAdminAccess():
+    if 'user_role' not in session:
+        app.logger.info('Not Logged In!')
+        return -1
+
+    if session['user_role'] != 'SnackShackAdmin':
+        app.logger.info('Incorrect Role!')
+        return -1
+    
+    app.logger.info('Logged In!')
+    
+    return 1
 
 if __name__ == '__main__':
     app.run(debug = True)

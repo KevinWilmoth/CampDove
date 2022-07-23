@@ -6,6 +6,10 @@
 </head>
 <body>
     <h1>Welcome to the Camp Dove App!</h1>
-    <a href="{{ url_for('tabs') }}">Tabs</a>
+    <form action="/" method="post">
+        <input type="text" name="username" required/>
+        <input type="password" name="password" required/>
+        <input type="submit" />
+    </form>
 </body>
 </html>
