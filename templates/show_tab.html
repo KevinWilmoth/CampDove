@@ -125,11 +125,11 @@
             </tr>
             <tr>
               <th><label for="weekly_limit">Weekly Limit</label></th>
-              <td>$ &nbsp;<input min="0.00" step="0.01" max="500" type="number" id="weekly_limit" value="{{weeklyLimit}}" name="weekly_limit"></td>
+              <td>$ &nbsp;<input min="0.00" step="0.01" max="500" type="number" id="weekly_limit" value="{{weeklyLimitNum}}" name="weekly_limit"></td>
             </tr>
             <tr>
               <th><label for="prepaid_amount">Prepaid Amount</label></th>
-              <td>$ &nbsp;<input min="0.00" step="0.01" max="500" type="number" id="prepaid_amount" value="{{prepaidAmount}}" name="prepaid_amount"></td>
+              <td>$ &nbsp;<input min="0.00" step="0.01" max="500" type="number" id="prepaid_amount" value="{{prepaidAmountNum}}" name="prepaid_amount"></td>
             </tr>
             <tr>
               <th><label for="no_limit">No Limit</label></th>
@@ -271,18 +271,19 @@
     }
 
     function valueChanged()
+  {
+    var nolimit     = document.getElementById("no_limit");
+    var weeklylimit = document.getElementById("weekly_limit");
+    if(nolimit.checked)
     {
-      var nolimit     = document.getElementById("no_limit");
-      var weeklylimit = document.getElementById("weekly_limit");
-      if(nolimit.checked)
-      {
-        weeklylimit.disabled=true;
-      }
-      else
-      {
-        weeklylimit.disabled=false;
-      }
+      weeklylimit.value = "";
+      weeklylimit.disabled=true;
     }
+    else
+    {
+      weeklylimit.disabled=false;
+    }
+  }
 
     function churchSearch() {
     var input, filter, table, tr, td, i, txtValue;

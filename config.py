@@ -3,6 +3,7 @@ import os
 settings = {
     'host': os.environ.get('ACCOUNT_HOST', 'https://campdovetest.documents.azure.com:443/'),
     'master_key': os.environ.get('ACCOUNT_KEY'),
+    'creator_key': os.environ.get('CAMP_DOVE_MASTER_KEY'),
     'my_test': os.environ.get('MY_TEST'),
     'database_id': os.environ.get('COSMOS_DATABASE', 'CampDoveTest'),
     'person_container_id': os.environ.get('PERSON_COSMOS_CONTAINER', 'Person'),

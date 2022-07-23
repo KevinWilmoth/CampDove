@@ -6,12 +6,29 @@ Functionality
 17. How Much Pop, Water, Candy
 18. Daily Limit Warnings
 20. Security Features
+21. Self Add for Workers
 
 Look and Feel:
-13. On "No Limit" Grey out Weekly Limit
-19. More Difficult Way to Delete Tabs
+19. Modern Professional Design
 
 Other
-8. Automated Test Cases
+7.  CI/CD
+8.  Automated Test Cases
 9.  Android App
 10. iPad App
+
+
+MVP:
+1. Security Features (Can't Access)
+2. Print out / Email
+3. Input Validation / Error Checking
+4. Backups
+5. CI/CD
+6. Intuitive Interface
+7. Initial Database Setup Script
+8. Refactor Code
+9. Bug Tracking
+10. User Testing
+11. Domain Name
+12. Mobile Interfaces (Phone and Tablet)
+13. Daily Limit Warnings

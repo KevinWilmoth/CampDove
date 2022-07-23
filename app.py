@@ -227,6 +227,8 @@ def show_tab():
                            dailyLimit          = "${:0,.2f}".format(tab.get('dailyLimit')),
                            contactName         = tab.get('contact_name'),
                            weeklyLimit         = "${:0,.2f}".format(tab.get('weeklyLimit')),
+                           weeklyLimitNum      = tab.get('weeklyLimit'),
+                           prepaidAmountNum    = tab.get('prepaid'),
                            workerName          = tab.get('workerName'),
                            id                  = tab.get('id'),
                            prepaidAmount       = "${:0,.2f}".format(tab.get('prepaid')),
