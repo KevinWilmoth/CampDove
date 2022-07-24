@@ -15,6 +15,7 @@ import transaction_table
 import camper_class
 import os
 import User_Table
+import item_table
 
 HOST = config.settings['host']
 MASTER_KEY = config.settings['master_key']
@@ -218,22 +219,32 @@ def show_tab():
     id           = request.form['id']
     transactions = transaction_table.get_transactions_for_camper(id,app)
     tab          = tab_table.get_tab(id)
+    items        = item_table.get_items()
 
-    transactionDays     = []
-    transactionAmounts  = []
-    transactionNumbers  = []
-    transactionTotals   = []
-    transactionIds      = []
-    churches            = []
-    weeklyLimitWarnings = []
-    contact_names       = []
+    transactionDays       = []
+    transactionAmounts    = []
+    transactionNumbers    = []
+    transactionTotals     = []
+    transactionIds        = []
+    churches              = []
+    weeklyLimitWarnings   = []
+    contact_names         = []
+    item_descs            = []
+    item_prices           = []
+    item_prices_formatted = []
+
     tab_closed          = tab.get("closed_status") in ["Refund", "PaidInFull", "Donation"]
     app.logger.info('close tab closed = [' + str(tab_closed) + ']')
 
     counter            = 1
     transactionTotal   = 0
 
-        
+
+    for snackShackItem in items:
+        item_descs.append(snackShackItem.get("description"))
+        item_prices.append(snackShackItem.get("price"))
+        item_prices_formatted.append("${:0,.2f}".format(snackShackItem.get('price')))
+
     for doc in tabs:
         closedClass     = ""
         if (doc.get("closed_status") in ["Refund", "PaidInFull", "Donation"]):
@@ -279,28 +290,31 @@ def show_tab():
 
     return render_template('show_tab.html', 
                            campers = campers,
-                           camperFirstName     = tab.get('camper_first_name'),
-                           camperLastName      = tab.get('camper_last_name'), 
-                           NoLimit             = tab.get('noLimit'),
-                           homeChurch          = tab.get('home_church'),
-                           dailyLimit          = "${:0,.2f}".format(tab.get('dailyLimit')),
-                           contactName         = tab.get('contact_name'),
-                           weeklyLimit         = "${:0,.2f}".format(tab.get('weeklyLimit')),
-                           weeklyLimitNum      = tab.get('weeklyLimit'),
-                           prepaidAmountNum    = tab.get('prepaid'),
-                           workerName          = tab.get('workerName'),
-                           id                  = tab.get('id'),
-                           prepaidAmount       = "${:0,.2f}".format(tab.get('prepaid')),
-                           transactionDays     = transactionDays,
-                           transactionAmounts  = transactionAmounts,
-                           transactionNumbers  = transactionNumbers,
-                           transactionTotals   = transactionTotals,
-                           transactionIds      = transactionIds,
-                           weeklyLimitWarnings = weeklyLimitWarnings,
-                           churches            = churches,
-                           contact_names       = contact_names,
-                           tab_not_closed      = not tab_closed,
-                           tab_closed          = tab_closed
+                           camperFirstName       = tab.get('camper_first_name'),
+                           camperLastName        = tab.get('camper_last_name'), 
+                           NoLimit               = tab.get('noLimit'),
+                           homeChurch            = tab.get('home_church'),
+                           dailyLimit            = "${:0,.2f}".format(tab.get('dailyLimit')),
+                           contactName           = tab.get('contact_name'),
+                           weeklyLimit           = "${:0,.2f}".format(tab.get('weeklyLimit')),
+                           weeklyLimitNum        = tab.get('weeklyLimit'),
+                           prepaidAmountNum      = tab.get('prepaid'),
+                           workerName            = tab.get('workerName'),
+                           id                    = tab.get('id'),
+                           prepaidAmount         = "${:0,.2f}".format(tab.get('prepaid')),
+                           transactionDays       = transactionDays,
+                           transactionAmounts    = transactionAmounts,
+                           transactionNumbers    = transactionNumbers,
+                           transactionTotals     = transactionTotals,
+                           transactionIds        = transactionIds,
+                           weeklyLimitWarnings   = weeklyLimitWarnings,
+                           churches              = churches,
+                           contact_names         = contact_names,
+                           tab_not_closed        = not tab_closed,
+                           tab_closed            = tab_closed,
+                           item_descs            = item_descs,
+                           item_prices           = item_prices,
+                           item_prices_formatted = item_prices_formatted
                           )
 
 def checkAdminAccess():

@@ -255,18 +255,14 @@
         <th>Add Item</th>
         <th>Subtract Item</th>
     </tr> 
+    {% for item in item_descs %}
     <tr>
-      <td>Pop or Water</td>
-      <td>$1.00</td>
-      <td><button name="Add" type="submit" onclick="addFunds(1)">+</button></td>  
-      <td><button name="Subtract" type="submit" onclick="subtractFunds(1)">-</button></td> 
-      <tr>
-        <td>Fruit Snacks</td>
-        <td>$0.75</td>
-        <td><button name="Add" type="submit" onclick="addFunds(.75)">+</button></td>  
-        <td><button name="Subtract" type="submit" onclick="subtractFunds(.75)">-</button></td> 
-      </tr>
+      <td>{{item_descs[loop.index0]}}</td>
+      <td>{{item_prices_formatted[loop.index0]}}</td>
+      <td><button name="Add" type="submit" onclick="addFunds({{item_prices[loop.index0]}})">+</button></td>  
+      <td><button name="Subtract" type="submit" onclick="subtractFunds({{item_prices[loop.index0]}})">-</button></td> 
     </tr>
+    {% endfor %}
 </table>
   <h2>Close Tab</h2>
   <form action="{{ url_for('close_tab') }}" method="post">
