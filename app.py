@@ -17,13 +17,6 @@ import os
 import User_Table
 import item_table
 
-HOST = config.settings['host']
-MASTER_KEY = config.settings['master_key']
-MY_TEST = config.settings['my_test']
-DATABASE_ID = config.settings['database_id']
-CONTAINER_ID = config.settings['person_container_id']
-BASE_URL = config.settings['base_url']
-
 app = flask.Flask(__name__)
 app.secret_key = os.urandom(24)
 
