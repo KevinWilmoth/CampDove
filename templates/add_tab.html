@@ -89,19 +89,12 @@
             <th>Camper Last Name</th>
             <th>Camper First Name</th>
             <th>Church</th>
-            <th>Delete Tab</th>
           </tr>
           {% for item in campers %}    
           <tr class="{{campers[loop.index0].closedClass}}" camper_id="{{campers[loop.index0].id}}" onclick="ShowTab(this)">               
             <td class="{{campers[loop.index0].closedClass}}">{{campers[loop.index0].lname}}</td>
             <td class="{{campers[loop.index0].closedClass}}">{{campers[loop.index0].fname}}</td>
-            <td class="{{campers[loop.index0].closedClass}}">{{campers[loop.index0].church}}</td>  
-            <td class="{{campers[loop.index0].closedClass}}">
-              <form action="{{ url_for('delete_tab') }}" method="post">
-                  <input type="hidden" id="id" name="id" value="{{campers[loop.index0].id}}">
-                  <button name="Delete" type="submit">Delete</button>  
-              </form>
-            </td> 
+            <td class="{{campers[loop.index0].closedClass}}">{{campers[loop.index0].church}}</td>   
 
             <form id="show_tab_{{campers[loop.index0].id}}" action="{{ url_for('show_tab') }}" method="post">
                 <input type="hidden" id="id" name="id" value="{{campers[loop.index0].id}}">
