@@ -57,3 +57,26 @@
       }       
     }
   }
+
+  
+  function addFunds(amount)
+  {
+    var transactionAmount    = document.getElementById("transaction_amount");
+    newValue = parseFloat(amount);
+    if(transactionAmount.value!="")
+    {
+      newValue = parseFloat(transactionAmount.value) + parseFloat(amount);
+    }
+
+    transactionAmount.value  = parseFloat(newValue);
+  }
+
+  function subtractFunds(amount)
+  {
+    var transactionAmount    = document.getElementById("transaction_amount");
+    newValue                 = parseFloat(transactionAmount.value) - parseFloat(amount);
+    if(newValue >= 0)
+    {
+      transactionAmount.value = parseFloat(newValue);
+    }
+  }

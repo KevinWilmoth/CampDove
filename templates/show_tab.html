@@ -3,46 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <title>Snack Shack App</title>
+    <title>Snack Shack App</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.3.1/dist/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
     <link rel="stylesheet" type="text/css" href="{{ url_for('static',filename='styles/CampDove.css') }}">
     <link rel="icon" type="image/png" sizes="32x32" href="{{ url_for('static',filename='images/favicon-32x32.png') }}" />
     <style>
-        table {
-          font-family: arial, sans-serif;
-          border-width:1px;
-          border-style:solid;
-          border-color:black;
-          width: 100%;
-        }
-        
-
-        th {
-          border-width:1px;
-          border-style:solid;
-          border-color:black;
-          text-align: center;
-          padding: 8px;
-          background-color: #FAF3E3;
-          color: #1A4D2E;
-        }
-
-        td {
-          border-width:1px;
-          border-style:solid;
-          border-color:black;
-          text-align: left;
-          padding: 8px;
-          background-color: #FAF3E3;
-          color: #1A4D2E;
-        }
-
-        h1, h2 {
-          color: #000000;
-          text-align:center;
-        }
-        .camperTable tr:hover td{
-          background-color:#999999;
-        }
 
         .leftSide {
           float: left;
@@ -84,14 +49,65 @@
 </head>
 
 
-<body style="background-color: #FAF3E3">
-    <h1 text-align="center">Welcome to the Camp Dove Tab List</h1>
-    <form action="/logout" method="post">
-      <button text-align="center" name="Logout" type="submit">Logout</button>
-    </form>
-    <div class="leftSide">
-      <div class="addCamper">
-      <h2>Edit Camper Form</h2>
+<body>
+  <div class="container-fluid float-left text-white" style="background-color: #0d1840;">
+    <div class="row">
+      <div class="col">
+        <a href="default"><img  class="logoImage" src="{{ url_for('static',filename='images/upc dove and text logo.png') }}" /></a>
+      </div>
+      <div class="col-lg-auto">
+        <h1>Camp Dove Tabs</h1>
+      </div>
+      <div class="col">
+        <div style="float: right">
+          <form action="/logout" method="post">
+            <br>
+            <button name="Logout" type="submit">Logout</button>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="container-fluid float-left">
+    <div class="row">
+      <div class="col border-bottom border-dark">
+        <h2 style="display: inline;">Camper List</h2>
+        <input class="mt-2" type="text" id="lastNameSearch" onkeyup="lastNameSearch()" placeholder="Search by Last Name" title="Type in a name" style="float: right;"/>
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<input class="mt-2" type="text" id="churchSearch" onkeyup="churchSearch()" placeholder="Search by Churches" title="Type in a name"/>
+        <table id="camperTable" class="camperTable">
+          <tr>
+            <th>Camper Last Name</th>
+            <th>Camper First Name</th>
+            <th>Church</th>
+          </tr>
+          {% for item in campers %}    
+          <tr class="{{campers[loop.index0].closedClass}}" camper_id="{{campers[loop.index0].id}}" onclick="ShowTab(this)">               
+            <td class="{{campers[loop.index0].closedClass}}">{{campers[loop.index0].lname}}</td>
+            <td class="{{campers[loop.index0].closedClass}}">{{campers[loop.index0].fname}}</td>
+            <td class="{{campers[loop.index0].closedClass}}">{{campers[loop.index0].church}}</td>  
+            <form id="show_tab_{{campers[loop.index0].id}}" action="{{ url_for('show_tab') }}" method="post">
+                <input type="hidden" id="id" name="id" value="{{campers[loop.index0].id}}">
+                <button name="AddTransaction" type="submit" style="color: transparent; background-color: transparent; border-color: transparent; cursor: default;">Tab</button>  
+            </form>
+
+          </tr>
+          {% endfor %}    
+          <tr camper_id="new" onclick="ShowTab(this)">               
+            <td>Create New Camper</td>
+            <td></td>
+            <td></td>  
+            <form id="show_tab_new" action="{{ url_for('tabs') }}" method="post">
+                <input type="hidden" id="id" name="id" value="new">
+                <button name="AddTransaction" type="submit" style="color: transparent; background-color: transparent; border-color: transparent; cursor: default;">New</button>  
+            </form>
+          </tr>
+        </table>
+        <br>
+      </div>
+      <div class="col border-bottom border-dark">
+        <h2>Edit Tab</h2>
+        <br>
         <form action="{{ url_for('edit_tab') }}" method="post">
           <table>
             <tr>
@@ -145,208 +161,118 @@
               <td><button name="Add Camper Tab" type="submit">Edit Camper Tab</button></td>
               <td></td>
             </tr>
-            </form>
           </table>
         </form>
       </div>
+    </div>
+  </div>  
 
-    <div class="tabList">
-      <h2>Camper List</h2>
-       <input type="text" id="churchSearch" onkeyup="churchSearch()" placeholder="Search for Churches.." title="Type in a name">
-        <table id="camperTable" class="camperTable">
+  <div class="container-fluid float-left">
+    <div class="row mt-2">
+      <div class="col border-right border-dark">
+        <h2>Camper Transactions</h2>
+        <table>
           <tr>
-            <th>Camper Last Name</th>
-            <th>Camper First Name</th>
-            <th>Church</th>
-            <th>Delete Tab</th>
+              <th>Camper Name</th>
+              <td>{{camperFirstName}}&nbsp;{{camperLastName}}</td>
+              <th>No Limit</th>
+              <td>{{NoLimit}}</td>
           </tr>
-          {% for item in campers %}    
-          <tr class="{{campers[loop.index0].closedClass}}" camper_id="{{campers[loop.index0].id}}" onclick="ShowTab(this)">               
-            <td class="{{campers[loop.index0].closedClass}}">{{campers[loop.index0].lname}}</td>
-            <td class="{{campers[loop.index0].closedClass}}">{{campers[loop.index0].fname}}</td>
-            <td class="{{campers[loop.index0].closedClass}}">{{campers[loop.index0].church}}</td>  
-            <td class="{{campers[loop.index0].closedClass}}">
-                <form action="{{ url_for('delete_tab') }}" method="post">
-                    <input type="hidden" id="id" name="id" value="{{campers[loop.index0].id}}">
-                    <button name="Delete" type="submit">Delete</button>  
-                </form>
-            </td> 
-            <form id="show_tab_{{campers[loop.index0].id}}" action="{{ url_for('show_tab') }}" method="post">
-                <input type="hidden" id="id" name="id" value="{{campers[loop.index0].id}}">
-                <button name="AddTransaction" type="submit" style="color: transparent; background-color: transparent; border-color: transparent; cursor: default;">Tab</button>  
-            </form>
-
+          <tr>
+              <th>Home Church</th>
+              <td>{{homeChurch}}</td>
+              <th>Daily Limit Amount</th>
+              <td>{{dailyLimit}}</td>
           </tr>
-          {% endfor %}    
-          <tr camper_id="new" onclick="ShowTab(this)">               
-            <td>Create New Camper</td>
-            <td></td>
-            <td></td>  
-            <td ></td> 
-            <form id="show_tab_new" action="{{ url_for('tabs') }}" method="post">
-                <input type="hidden" id="id" name="id" value="new">
-                <button name="AddTransaction" type="submit" style="color: transparent; background-color: transparent; border-color: transparent; cursor: default;">New</button>  
-            </form>
+          <tr>
+              <th>Contact Name</th>
+              <td>{{contactName}}</td>
+              <th>Weekly Limit Amount</th>
+              <td>{{weeklyLimit}}</td>
           </tr>
+          <tr>
+              <th>Snack Shack Worker</th>
+              <td>{{workerName}}</td>
+              <th>Prepaid Amount</th>
+              <td>{{prepaidAmount}}</td>
+          </tr>   
         </table>
+        <br>
+        <h2>Transactions</h2>
+        <table>
+          <tr>
+              <th>Transaction Number</th>
+              <th>Transaction Day</th>
+              <th>Transaction Amount</th>
+              <th>Weekly Total</th>
+              <th>Delete</th>
+          </tr> 
+          {% for item in transactionDays %}    
+          <tr>               
+              <td>{{transactionNumbers[loop.index0]}}</td>
+              <td>{{transactionDays[loop.index0]}}</td>
+              <td>{{transactionAmounts[loop.index0]}}</td>  
+              <td class="{{weeklyLimitWarnings[loop.index0]}}">{{transactionTotals[loop.index0]}}</td> 
+                  <form action="{{ url_for('delete_transaction') }}" method="post">
+                      <input type="hidden" id="transaction_id" name="transaction_id" value="{{transactionIds[loop.index0]}}">
+                      <input type="hidden" id="id" name="id" value="{{id}}">
+                      <td><button name="Delete" type="submit">Delete</button></td>   
+                  </form>  
+          </tr>
+          {% endfor %} 
+        </table>
+        {% if tab_not_closed %}
+        <br>
+        <h2>New Transaction</h2>
+        <form action="{{ url_for('add_transaction') }}" method="post">
+          <label for="transaction_amount">Transaction Amount &nbsp;$</label>
+          <input id="transaction_amount" name="transaction_amount" min="0.00" step="0.01" max="500" type="number" value="0">
+          <input type="hidden" id="id" name="id" value="{{id}}">
+          <td><button name="Add" type="submit">Add</button></td>   
+        </form>  
+        <br>
+        <h2>Close Tab</h2>
+        <form action="{{ url_for('close_tab') }}" method="post">
+          <input type="radio" id="refund" name="close_tab_option" value="Refund" checked> 
+          <label for="refund">Refund</label><br>
+          <input type="radio" id="paid" name="close_tab_option" value="PaidInFull">
+          <label for="paid">Paid In Full</label><br>
+          <input type="radio" id="donation" name="close_tab_option" value="Donation">
+          <label for="donation">Donation</label><br>
+          <input type="hidden" id="id" name="id" value="{{id}}">
+          <button name="CloseTab" type="submit">Close Tab</button>
+        </form>  
+        {% endif %}
+        {% if tab_closed %}
+        <br>
+        <h2>Tab is Closed</h2>
+        {% endif %}
+      </div>
+      <div class="col">
+        <h2>Transaction Calculator</h2>
+        <table>
+          <tr>
+            <th>Item Description</th>
+            <th>Item Price</th>
+            <th>Add Item</th>
+            <th>Subtract Item</th>
+          </tr> 
+          {% for item in item_descs %}
+          <tr>
+            <td>{{item_descs[loop.index0]}}</td>
+            <td>{{item_prices_formatted[loop.index0]}}</td>
+            <td><button name="Add" type="submit" onclick="addFunds({{item_prices[loop.index0]}})">+</button></td>  
+            <td><button name="Subtract" type="submit" onclick="subtractFunds({{item_prices[loop.index0]}})">-</button></td> 
+          </tr>
+          {% endfor %}
+        </table>      </div>
     </div>
   </div>
-  <div class="tabDetail">
-    <h2>Camper Transactions</h2>
-    <table>
-      <tr>
-          <th>Camper Name</th>
-          <td>{{camperFirstName}}&nbsp;{{camperLastName}}</td>
-          <th>No Limit</th>
-          <td>{{NoLimit}}</td>
-      </tr>
-      <tr>
-          <th>Home Church</th>
-          <td>{{homeChurch}}</td>
-          <th>Daily Limit Amount</th>
-          <td>{{dailyLimit}}</td>
-      </tr>
-      <tr>
-          <th>Contact Name</th>
-          <td>{{contactName}}</td>
-          <th>Weekly Limit Amount</th>
-          <td>{{weeklyLimit}}</td>
-      </tr>
-      <tr>
-          <th>Snack Shack Worker</th>
-          <td>{{workerName}}</td>
-          <th>Prepaid Amount</th>
-          <td>{{prepaidAmount}}</td>
-      </tr>   
-  </table>
-  <h2>Transactions</h2>
-  <table>
-      <tr>
-          <th>Transaction Number</th>
-          <th>Transaction Day</th>
-          <th>Transaction Amount</th>
-          <th>Weekly Total</th>
-          <th>Delete</th>
-      </tr> 
-      {% for item in transactionDays %}    
-      <tr>               
-          <td>{{transactionNumbers[loop.index0]}}</td>
-          <td>{{transactionDays[loop.index0]}}</td>
-          <td>{{transactionAmounts[loop.index0]}}</td>  
-          <td class="{{weeklyLimitWarnings[loop.index0]}}">{{transactionTotals[loop.index0]}}</td> 
-              <form action="{{ url_for('delete_transaction') }}" method="post">
-                  <input type="hidden" id="transaction_id" name="transaction_id" value="{{transactionIds[loop.index0]}}">
-                  <input type="hidden" id="id" name="id" value="{{id}}">
-                  <td><button name="Delete" type="submit">Delete</button></td>   
-              </form>  
-      </tr>
-      {% endfor %} 
-  </table>
-  {% if tab_not_closed %}
-  <h2>New Transaction</h2>
-  <form action="{{ url_for('add_transaction') }}" method="post">
-      <label for="transaction_amount">Transaction Amount &nbsp;$</label>
-      <input id="transaction_amount" name="transaction_amount" min="0.00" step="0.01" max="500" type="number" value="0">
-      <input type="hidden" id="id" name="id" value="{{id}}">
-      <td><button name="Add" type="submit">Add</button></td>   
-  </form>  
-  <h2>Transaction Calculator</h2>
-  <table>
-    <tr>
-        <th>Item Description</th>
-        <th>Item Price</th>
-        <th>Add Item</th>
-        <th>Subtract Item</th>
-    </tr> 
-    {% for item in item_descs %}
-    <tr>
-      <td>{{item_descs[loop.index0]}}</td>
-      <td>{{item_prices_formatted[loop.index0]}}</td>
-      <td><button name="Add" type="submit" onclick="addFunds({{item_prices[loop.index0]}})">+</button></td>  
-      <td><button name="Subtract" type="submit" onclick="subtractFunds({{item_prices[loop.index0]}})">-</button></td> 
-    </tr>
-    {% endfor %}
-</table>
-  <h2>Close Tab</h2>
-  <form action="{{ url_for('close_tab') }}" method="post">
-    <input type="radio" id="refund" name="close_tab_option" value="Refund" checked> 
-    <label for="refund">Refund</label><br>
-    <input type="radio" id="paid" name="close_tab_option" value="PaidInFull">
-    <label for="paid">Paid In Full</label><br>
-    <input type="radio" id="donation" name="close_tab_option" value="Donation">
-    <label for="donation">Donation</label><br>
-    <input type="hidden" id="id" name="id" value="{{id}}">
-    <button name="CloseTab" type="submit">Close Tab</button>
-  </form>  
-  </div>
-  {% endif %}
-  {% if tab_closed %}
-  <h2>Tab is Closed</h2>
-  {% endif %}
 
-  <script>
-    function ShowTab(row) {
-      id = row.getAttribute("camper_id");
-      fromElementID = 'show_tab_' + id;
-      var form = document.getElementById(fromElementID);
-      form.submit();
-    }
 
-  function addFunds(amount)
-  {
-    var transactionAmount    = document.getElementById("transaction_amount");
-    newValue = parseFloat(amount);
-    if(transactionAmount.value!="")
-    {
-      newValue = parseFloat(transactionAmount.value) + parseFloat(amount);
-    }
-
-    transactionAmount.value  = parseFloat(newValue);
-  }
-
-  function subtractFunds(amount)
-  {
-    var transactionAmount    = document.getElementById("transaction_amount");
-    newValue                 = parseFloat(transactionAmount.value) - parseFloat(amount);
-    if(newValue >= 0)
-    {
-      transactionAmount.value = parseFloat(newValue);
-    }
-  }
-
-  function valueChanged()
-  {
-    var nolimit     = document.getElementById("no_limit");
-    var weeklylimit = document.getElementById("weekly_limit");
-    if(nolimit.checked)
-    {
-      weeklylimit.value = "";
-      weeklylimit.disabled=true;
-    }
-    else
-    {
-      weeklylimit.disabled=false;
-    }
-  }
-
-    function churchSearch() {
-    var input, filter, table, tr, td, i, txtValue;
-    input = document.getElementById("churchSearch");
-    filter = input.value.toUpperCase();
-    table = document.getElementById("camperTable");
-    tr = table.getElementsByTagName("tr");
-    for (i = 0; i < tr.length; i++) {
-      td = tr[i].getElementsByTagName("td")[2];
-      if (td) {
-        txtValue = td.textContent || td.innerText;
-        if (txtValue.toUpperCase().indexOf(filter) > -1) {
-          tr[i].style.display = "";
-        } else {
-          tr[i].style.display = "none";
-        }
-      }       
-    }
-  }
-  </script>
+<script type="text/javascript" src="{{ url_for('static',filename='scripts/CampDove.js') }}"></script>
+<script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/popper.js@1.14.7/dist/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@4.3.1/dist/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
 </body>
 </html>
