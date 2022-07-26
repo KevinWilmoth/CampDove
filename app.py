@@ -49,31 +49,49 @@ def index():
 
     return render_template('index.html')
 
-@app.route('/add_tabs', methods=['POST'])
+@app.route('/add_tab', methods=['POST'])
 def add_tab():
     if(checkAdminAccess()<0):
         return redirect(url_for('index'))
-        
-    camper_fname   = request.form['camper_first_name']
+
+    #Required Fields
     camper_lname   = request.form['camper_last_name']
-    church_name    = request.form['church']
-    contact_name   = request.form['contact_name']
     worker_name    = request.form['worker_name']
-    no_limit       = 'False'
-    
+
+    #Optional Fields
+    camper_fname   = ""
+    if "camper_first_name" in request.form:
+        camper_fname   = request.form['camper_first_name']
+
+    camper_fname   = ""
+    if "church" in request.form:
+        church_name    = request.form['church']
+
+    contact_name   = ""
+    if "contact_name" in request.form:
+        contact_name    = request.form['contact_name']  
+
+    no_limit       = 'False'    
     if "no_limit" in request.form:
         no_limit = 'True'
     
     if 'weekly_limit' not in request.form:
         weekly_limit = '0.0'
+    elif request.form['weekly_limit']=='':
+        weekly_limit = '0.0'
     else:
         weekly_limit   = request.form['weekly_limit']
 
-    prepaid_amount = request.form['prepaid_amount']
-    if prepaid_amount=='':
+    if 'prepaid_amount' not in request.form:
         prepaid_amount = '0.0'
+    elif request.form['prepaid_amount']=='':
+        prepaid_amount = '0.0'
+    else:
+        prepaid_amount = request.form['prepaid_amount']
+        
 
     app.logger.info('prepaid_amount = [' + prepaid_amount + ']')
+    app.logger.info('weekly_limit = [' + weekly_limit + ']')
 
     tab_table.add_tab(camper_fname, camper_lname, church_name, contact_name, worker_name, weekly_limit, prepaid_amount, no_limit,app)
 

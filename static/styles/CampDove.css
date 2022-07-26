@@ -4,6 +4,42 @@
     width: 100%;
     float: right;
 }
+
 .logoImage {
     height: 75px;
 }
+
+table {
+    font-family: arial, sans-serif;
+    border-width:1px;
+    border-style:solid;
+    border-color:black;
+    width: 100%;
+  }
+
+  th {
+    border-width:1px;
+    border-style:solid;
+    border-color:black;
+    padding: 8px;
+    background-color: #FAF3E3;
+    color: #1A4D2E;
+  }
+
+  td {
+    border-width:1px;
+    border-style:solid;
+    border-color:black;
+    text-align: left;
+    padding: 8px;
+    background-color: #FAF3E3;
+    color: #1A4D2E;
+  }
+
+  .camperTable tr:hover td{
+    background-color:#999999;
+  }
+
+  .warning {
+      background-color:yellow;
+  }
