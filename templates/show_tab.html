@@ -166,11 +166,21 @@
       </div>
     </div>
   </div>  
-
+  <div class="container-fluid float-left text-white" style="background-color: #0d1840;">
+    <div class="row">
+      <div class="col">
+      </div>
+      <div class="col-lg-auto">
+        <h1>Transactions</h1>
+      </div>
+      <div class="col">
+      </div>
+    </div>
+  </div>
   <div class="container-fluid float-left">
     <div class="row mt-2">
       <div class="col border-right border-dark">
-        <h2>Camper Transactions</h2>
+        <h2>Camper Details</h2>
         <table>
           <tr>
               <th>Camper Name</th>
@@ -197,7 +207,16 @@
               <td>{{prepaidAmount}}</td>
           </tr>   
         </table>
+        {% if tab_not_closed %}
         <br>
+        <h2>New Transaction</h2>
+        <form action="{{ url_for('add_transaction') }}" method="post">
+          <label for="transaction_amount">Transaction Amount &nbsp;$</label>
+          <input id="transaction_amount" name="transaction_amount" min="0.00" step="0.01" max="500" type="number" value="0">
+          <input type="hidden" id="id" name="id" value="{{id}}">
+          <td><button name="Add" type="submit">Add</button></td>   
+        </form>  
+        {% endif %}        <br>
         <h2>Transactions</h2>
         <table>
           <tr>
@@ -222,14 +241,6 @@
           {% endfor %} 
         </table>
         {% if tab_not_closed %}
-        <br>
-        <h2>New Transaction</h2>
-        <form action="{{ url_for('add_transaction') }}" method="post">
-          <label for="transaction_amount">Transaction Amount &nbsp;$</label>
-          <input id="transaction_amount" name="transaction_amount" min="0.00" step="0.01" max="500" type="number" value="0">
-          <input type="hidden" id="id" name="id" value="{{id}}">
-          <td><button name="Add" type="submit">Add</button></td>   
-        </form>  
         <br>
         <h2>Close Tab</h2>
         <form action="{{ url_for('close_tab') }}" method="post">
