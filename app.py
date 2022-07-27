@@ -158,7 +158,7 @@ def add_transaction():
 
     id     = request.form['id']
     amount = request.form['transaction_amount']
-    transaction_table.add_transaction(id,amount)
+    transaction_table.add_transaction(id,amount,app)
 
     return redirect(url_for('show_tab'), code=307)
 
@@ -168,7 +168,7 @@ def delete_transaction():
         return redirect(url_for('index'))
 
     transaction_id  = request.form['transaction_id']
-    transaction_table.delete_transaction(transaction_id)
+    transaction_table.delete_transaction(transaction_id,app)
 
     return redirect(url_for('show_tab'), code=307)
 

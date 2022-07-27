@@ -6,11 +6,13 @@ import azure.cosmos.exceptions as exceptions
 from azure.cosmos.partition_key import PartitionKey
 from flask import Flask
 from datetime import datetime
+import traceback
 
-HOST         = config.settings['host']
-MASTER_KEY   = config.settings['master_key']
-DATABASE_ID  = config.settings['database_id']
-CONTAINER_ID = config.settings['transaction_container_id']
+HOST             = config.settings['host']
+MASTER_KEY       = config.settings['master_key']
+DATABASE_ID      = config.settings['database_id']
+CONTAINER_ID     = config.settings['transaction_container_id']
+MAX_RETURN_ITEMS = config.settings["max_return_items"]
 
 def dayNameFromWeekday(weekday):
     if weekday == 0:
@@ -28,11 +30,15 @@ def dayNameFromWeekday(weekday):
     if weekday == 6:
         return "Sunday"
 
-def add_transaction(camperId, transactionAmount):
-    client    = cosmos_client.CosmosClient(HOST, {'masterKey': MASTER_KEY}, user_agent="CosmosDBPythonQuickstart", user_agent_overwrite=True)
-    db        = client.get_database_client(DATABASE_ID)
-    container = db.get_container_client(CONTAINER_ID)
-
+def add_transaction(camperId, transactionAmount, app):
+    try:
+        client    = cosmos_client.CosmosClient(HOST, {'masterKey': MASTER_KEY}, user_agent="CosmosDBPythonQuickstart", user_agent_overwrite=True)
+        db        = client.get_database_client(DATABASE_ID)
+        container = db.get_container_client(CONTAINER_ID)
+    except Exception as e:
+        app.logger.critical("[transaction_table.add_transaction()] Error opening container [" + CONTAINER_ID + "] in database [" + DATABASE_ID +"]")
+        app.logger.critical(traceback.format_exc)
+        raise
 
     item_id   = hash(camperId + transactionAmount + str(datetime.now()))
     dayofWeek = dayNameFromWeekday(datetime.today().weekday())
@@ -43,35 +49,53 @@ def add_transaction(camperId, transactionAmount):
                     'camper_id'   : camperId
                   }
 
-    container.create_item(body=transaction)
+    try:
+        container.create_item(body=transaction)
+    except e:
+        app.logger.critical("[transaction_table.add_transaction()] Error adding transaction to container [" + CONTAINER_ID + "] in database [" + DATABASE_ID +"]")
+        app.logger.critical(traceback.format_exc)
+        raise
+
     return 0
 
 def get_transactions_for_camper(camperId, app):
-    client    = cosmos_client.CosmosClient(HOST, {'masterKey': MASTER_KEY}, user_agent="CosmosDBPythonQuickstart", user_agent_overwrite=True)
-    db        = client.get_database_client(DATABASE_ID)
-    container = db.get_container_client(CONTAINER_ID)
+    try:
+        client    = cosmos_client.CosmosClient(HOST, {'masterKey': MASTER_KEY}, user_agent="CosmosDBPythonQuickstart", user_agent_overwrite=True)
+        db        = client.get_database_client(DATABASE_ID)
+        container = db.get_container_client(CONTAINER_ID)
+    except Exception as e:
+        app.logger.critical("[transaction_table.get_transactions_for_camper()] Error opening container [" + CONTAINER_ID + "] in database [" + DATABASE_ID +"]")
+        app.logger.critical(traceback.format_exc)
+        raise
 
-    item_list = container.query_items(
-                query='SELECT * FROM Transaction r WHERE r.camper_id=@camper_id',
-                parameters=[{ "name":"@camper_id", "value": camperId }],
-                enable_cross_partition_query=True)
+    try:
+        item_list = container.query_items(
+                    query='SELECT * FROM Transaction r WHERE r.camper_id=@camper_id',
+                    parameters=[{ "name":"@camper_id", "value": camperId }],
+                    enable_cross_partition_query=True)
+    except e:
+        app.logger.critical("[transaction_table.get_transactions_for_camper()] Error finding transaction in container [" + CONTAINER_ID + "] in database [" + DATABASE_ID +"]")
+        app.logger.critical(traceback.format_exc)
+        raise       
 
-    app.logger.info('get_transactions_for_camper camper = [' + camperId + ']')
     return item_list
 
-def get_transactions():
-    client    = cosmos_client.CosmosClient(HOST, {'masterKey': MASTER_KEY}, user_agent="CosmosDBPythonQuickstart", user_agent_overwrite=True)
-    db        = client.get_database_client(DATABASE_ID)
-    container = db.get_container_client(CONTAINER_ID)
+def delete_transaction(id, app):
+    try:
+        client    = cosmos_client.CosmosClient(HOST, {'masterKey': MASTER_KEY}, user_agent="CosmosDBPythonQuickstart", user_agent_overwrite=True)
+        db        = client.get_database_client(DATABASE_ID)
+        container = db.get_container_client(CONTAINER_ID)
+    except Exception as e:
+        app.logger.critical("[transaction_table.delete_transaction()] Error opening container [" + CONTAINER_ID + "] in database [" + DATABASE_ID +"]")
+        app.logger.critical(traceback.format_exc)
+        raise
 
-    item_list = list(container.read_all_items(max_item_count=100))
-    return item_list
+    try:
+        container.delete_item(item=id, partition_key=id)
+    except e:
+        app.logger.critical("[transaction_table.delete_transaction()] Error deleting transaction in container [" + CONTAINER_ID + "] in database [" + DATABASE_ID +"]")
+        app.logger.critical(traceback.format_exc)
+        raise   
 
-def delete_transaction(id):
-    client    = cosmos_client.CosmosClient(HOST, {'masterKey': MASTER_KEY}, user_agent="CosmosDBPythonQuickstart", user_agent_overwrite=True)
-    db        = client.get_database_client(DATABASE_ID)
-    container = db.get_container_client(CONTAINER_ID)
-
-    container.delete_item(item=id, partition_key=id)
     return 0
 
