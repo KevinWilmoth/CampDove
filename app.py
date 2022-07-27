@@ -135,7 +135,7 @@ def delete_tab():
 
     app.logger.info('app.delete_tab id = [' + id + ']')
 
-    tab_table.delete_tab(id)
+    tab_table.delete_tab(id,app)
 
     return redirect('/tabs')
 
