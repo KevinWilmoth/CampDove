@@ -9,34 +9,61 @@
     height: 75px;
 }
 
-table {
-    font-family: arial, sans-serif;
-    border-width:1px;
-    border-style:solid;
-    border-color:black;
-    width: 100%;
-  }
+.snackshacktable {
+  font-family: arial, sans-serif;
+  border-width:1px;
+  border-style:solid;
+  border-color:black;
+  width: 100%;
+}
 
-  th {
-    border-width:1px;
-    border-style:solid;
-    border-color:black;
-    padding: 8px;
-    background-color: #FAF3E3;
-    color: #1A4D2E;
-  }
+.campertable {
+  font-family: arial, sans-serif;
+  border-width:1px;
+  border-style:solid;
+  border-color:black;
+  width: 100%;
+}
 
-  td {
-    border-width:1px;
-    border-style:solid;
-    border-color:black;
-    text-align: left;
-    padding: 8px;
-    background-color: #FAF3E3;
-    color: #1A4D2E;
-  }
+.snackshacktable th {
+  border-width:1px;
+  border-style:solid;
+  border-color:black;
+  padding: 8px;
+  background-color: #FAF3E3;
+  color: #1A4D2E;
+}
 
-  .camperTable tr:hover td{
+.snackshacktable td {
+  border-width:1px;
+  border-style:solid;
+  border-color:black;
+  text-align: left;
+  padding: 8px;
+  background-color: #FAF3E3;
+  color: #1A4D2E;
+ }
+
+.campertable th {
+  border-width:1px;
+  border-style:solid;
+  border-color:black;
+  padding: 8px;
+  background-color: #FAF3E3;
+  color: #1A4D2E;
+}
+
+.campertable td {
+  border-width:1px;
+  border-style:solid;
+  border-color:black;
+  text-align: left;
+  padding: 8px;
+  background-color: #FAF3E3;
+  color: #1A4D2E;
+ }
+
+  .campertable tr:hover td{
     background-color:#999999;
   }
 

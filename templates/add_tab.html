@@ -34,7 +34,7 @@
         <h2 style="display: inline;">Camper List</h2>
         <input class="mt-2" type="text" id="lastNameSearch" onkeyup="lastNameSearch()" placeholder="Search by Last Name" title="Type in a name" style="float: right;"/>
         &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<input class="mt-2" type="text" id="churchSearch" onkeyup="churchSearch()" placeholder="Search by Churches" title="Type in a name"/>
-        <table id="camperTable" class = "camperTable">
+        <table id="camperTable" class = "campertable">
           <tr>
             <th>Camper Last Name</th>
             <th>Camper First Name</th>
@@ -59,7 +59,7 @@
         <h2>Open Tab</h2>
         <br>
         <form action="{{ url_for('add_tab') }}" method="post">
-          <table>
+          <table class = "snackshacktable">
             <tr>
               <td>&nbsp;&nbsp;&nbsp;&nbsp;<input type="text" id="camper_first_name" name="camper_first_name" placeholder="First Name"></td>
               <td>&nbsp;&nbsp;&nbsp;&nbsp;<input type="text" id="camper_last_name" name="camper_last_name" placeholder="Last Name" required></td>
