@@ -60,10 +60,10 @@ def add_tab():
 
     #Optional Fields
     camper_fname   = ""
-    if "camper_first_name" in request.form:
+    if 'camper_first_name' in request.form:
         camper_fname   = request.form['camper_first_name']
 
-    camper_fname   = ""
+    church_name   = ""
     if "church" in request.form:
         church_name    = request.form['church']
 
@@ -147,7 +147,7 @@ def close_tab():
     close_type = request.form['close_tab_option']
     app.logger.info('close tab option = [' + close_type + ']')    
 
-    tab_table.close_tab(id, close_type)
+    tab_table.close_tab(id, close_type, app)
 
     return redirect(url_for('show_tab'), code=307)
 
@@ -184,7 +184,7 @@ def tabs():
         app.logger.info('Incorrect Role!')
         return redirect(url_for('index'))
 
-    tabs = tab_table.get_tabs()
+    tabs = tab_table.get_tabs(app)
     campers              = []
     churches             = []
     contact_names        = []
@@ -224,12 +224,12 @@ def show_tab():
     if(checkAdminAccess()<0):
         return redirect(url_for('index'))
 
-    tabs = tab_table.get_tabs()
+    tabs = tab_table.get_tabs(app)
     campers              = []
 
     id           = request.form['id']
     transactions = transaction_table.get_transactions_for_camper(id,app)
-    tab          = tab_table.get_tab(id)
+    tab          = tab_table.get_tab(id,app)
     items        = item_table.get_items()
 
     transactionDays       = []

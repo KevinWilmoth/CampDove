@@ -10,5 +10,6 @@ settings = {
     'user_container_id': os.environ.get('USER_COSMOS_CONTAINER', 'User'),
     'tab_container_id': os.environ.get('TAB_COSMOS_CONTAINER', 'Tab'),
     'transaction_container_id': os.environ.get('TRANSACTION_COSMOS_CONTAINER', 'Transaction'),
+    'max_return_items': os.environ.get('MAX_RETURN_ITEMS',  1000),
     'base_url' : os.environ.get('BASE_URL', 'http://localhost:5000/'),
 }

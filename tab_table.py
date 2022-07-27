@@ -5,21 +5,26 @@ import azure.cosmos.cosmos_client as cosmos_client
 import azure.cosmos.exceptions as exceptions
 from azure.cosmos.partition_key import PartitionKey
 from flask import Flask
+import traceback
 
-HOST         = config.settings['host']
-MASTER_KEY   = config.settings['master_key']
-DATABASE_ID  = config.settings['database_id']
-CONTAINER_ID = config.settings['tab_container_id']
+HOST             = config.settings['host']
+MASTER_KEY       = config.settings['master_key']
+DATABASE_ID      = config.settings['database_id']
+CONTAINER_ID     = config.settings['tab_container_id']
+MAX_RETURN_ITEMS = config.settings["max_return_items"]
 
 def add_tab(camperFirstName, camperLastName, homeChurch, contactName, workerName, weeklyLimit, prepaid, noLimit,app):
-    client    = cosmos_client.CosmosClient(HOST, {'masterKey': MASTER_KEY}, user_agent="CosmosDBPythonQuickstart", user_agent_overwrite=True)
-    db        = client.get_database_client(DATABASE_ID)
-    container = db.get_container_client(CONTAINER_ID)
+    try:
+        client    = cosmos_client.CosmosClient(HOST, {'masterKey': MASTER_KEY}, user_agent="CosmosDBPythonQuickstart", user_agent_overwrite=True)
+        db        = client.get_database_client(DATABASE_ID)
+        container = db.get_container_client(CONTAINER_ID)
+    except Exception as e:
+        app.logger.critical("[tab_table.add_tab()] Error opening container [" + CONTAINER_ID + "] in database [" + DATABASE_ID +"]")
+        app.logger.critical(traceback.format_exc)
+        raise
+        
     
     noLimitBoolean = noLimit=='True'
-
-    app.logger.info('tab_table.add_tab noLimit = [' + noLimit + ']')
-    app.logger.info('tab_table.add_tab boolean noLimit = [' + str(noLimitBoolean) + ']')
 
     if noLimitBoolean==True:
         dailyLimit = 0.0
@@ -45,13 +50,24 @@ def add_tab(camperFirstName, camperLastName, homeChurch, contactName, workerName
            'noLimit'           : noLimitBoolean
         }
 
-    container.create_item(body=tab)
+    try:
+        container.create_item(body=tab)
+    except Exception as e:
+        app.logger.critical("[tab_table.add_tab()] Error adding camper to container [" + CONTAINER_ID + "] in database [" + DATABASE_ID +"]")
+        app.logger.critical(traceback.format_exc)
+        raise     
+
     return 0
 
 def edit_tab(camperFirstName, camperLastName, homeChurch, contactName, workerName, weeklyLimit, prepaid, noLimit,app, id):
-    client    = cosmos_client.CosmosClient(HOST, {'masterKey': MASTER_KEY}, user_agent="CosmosDBPythonQuickstart", user_agent_overwrite=True)
-    db        = client.get_database_client(DATABASE_ID)
-    container = db.get_container_client(CONTAINER_ID)
+    try:
+        client    = cosmos_client.CosmosClient(HOST, {'masterKey': MASTER_KEY}, user_agent="CosmosDBPythonQuickstart", user_agent_overwrite=True)
+        db        = client.get_database_client(DATABASE_ID)
+        container = db.get_container_client(CONTAINER_ID)
+    except Exception as e:
+        app.logger.critical("[tab_table.edit_tab()] Error opening container [" + CONTAINER_ID + "] in database [" + DATABASE_ID +"]")
+        app.logger.critical(traceback.format_exc)
+        raise
     
     noLimitBoolean = noLimit=='True'
 
@@ -65,10 +81,12 @@ def edit_tab(camperFirstName, camperLastName, homeChurch, contactName, workerNam
     else:
         dailyLimit = 0.0
 
-    doc                      = container.read_item(item=id, partition_key=id)
-
-    app.logger.info('tab_table.add_tab prepaid in  = ' + str(doc.get('prepaid')) + '.')
-    app.logger.info('tab_table.add_tab prepaid out = ' + prepaid                 + '.')
+    try:
+        doc = container.read_item(item=id, partition_key=id)
+    except Exception as e:
+        app.logger.critical("[tab_table.edit_tab()] Error reading tab in container [" + CONTAINER_ID + "] in database [" + DATABASE_ID +"]")
+        app.logger.critical(traceback.format_exc)
+        raise
 
     doc['camper_first_name'] = camperFirstName
     doc['camper_last_name']  = camperLastName
@@ -80,39 +98,95 @@ def edit_tab(camperFirstName, camperLastName, homeChurch, contactName, workerNam
     doc['prepaid']           = float(prepaid)
     doc['noLimit']           = noLimitBoolean
 
-    container.replace_item(item=doc, body=doc)
+    try:
+        container.replace_item(item=doc, body=doc)
+    except Exception as e:
+        app.logger.critical("[tab_table.edit_tab()] Error updating tab in container [" + CONTAINER_ID + "] in database [" + DATABASE_ID +"]")
+        app.logger.critical(traceback.format_exc)
+        raise
+
     return 0
 
-def get_tabs():
-    client    = cosmos_client.CosmosClient(HOST, {'masterKey': MASTER_KEY}, user_agent="CosmosDBPythonQuickstart", user_agent_overwrite=True)
-    db        = client.get_database_client(DATABASE_ID)
-    container = db.get_container_client(CONTAINER_ID)
+def get_tabs(app):
+    try:
+        client    = cosmos_client.CosmosClient(HOST, {'masterKey': MASTER_KEY}, user_agent="CosmosDBPythonQuickstart", user_agent_overwrite=True)
+        db        = client.get_database_client(DATABASE_ID)
+        container = db.get_container_client(CONTAINER_ID)
+    except Exception as e:
+        app.logger.critical("[tab_table.get_tabs()] Error opening container [" + CONTAINER_ID + "] in database [" + DATABASE_ID +"]")
+        app.logger.critical(traceback.format_exc)
+        raise
+    
+    try:
+        item_list = list(container.read_all_items(max_item_count=MAX_RETURN_ITEMS))
+    except Exception as e:
+        app.logger.critical("[tab_table.get_tabs()] Error retrieving tabs [" + CONTAINER_ID + "] in database [" + DATABASE_ID +"]")
+        app.logger.critical(traceback.format_exc)
+        raise
 
-    item_list = list(container.read_all_items(max_item_count=100))
     return item_list
 
-def get_tab(id):
-    client    = cosmos_client.CosmosClient(HOST, {'masterKey': MASTER_KEY}, user_agent="CosmosDBPythonQuickstart", user_agent_overwrite=True)
-    db        = client.get_database_client(DATABASE_ID)
-    container = db.get_container_client(CONTAINER_ID)
+def get_tab(id,app):
+    try:
+        client    = cosmos_client.CosmosClient(HOST, {'masterKey': MASTER_KEY}, user_agent="CosmosDBPythonQuickstart", user_agent_overwrite=True)
+        db        = client.get_database_client(DATABASE_ID)
+        container = db.get_container_client(CONTAINER_ID)
+    except Exception as e:
+        app.logger.critical("[tab_table.get_tab()] Error opening container [" + CONTAINER_ID + "] in database [" + DATABASE_ID +"]")
+        app.logger.critical(traceback.format_exc)
+        raise
 
-    return container.read_item(item=id, partition_key=id)
+    try:
+        item = container.read_item(item=id, partition_key=id)
+    except Exception as e:
+        app.logger.critical("[tab_table.get_tab()] Error reading item from  [" + CONTAINER_ID + "] in database [" + DATABASE_ID +"]")
+        app.logger.critical(traceback.format_exc)
+        raise
 
-def close_tab(id, close_type):
-    client    = cosmos_client.CosmosClient(HOST, {'masterKey': MASTER_KEY}, user_agent="CosmosDBPythonQuickstart", user_agent_overwrite=True)
-    db        = client.get_database_client(DATABASE_ID)
-    container = db.get_container_client(CONTAINER_ID)
+    return item
 
-    doc                   = container.read_item(item=id, partition_key=id)
-    doc['closed_status']  = close_type
-    container.replace_item(item=doc, body=doc)
+def close_tab(id, close_type, app):
+    try:
+        client    = cosmos_client.CosmosClient(HOST, {'masterKey': MASTER_KEY}, user_agent="CosmosDBPythonQuickstart", user_agent_overwrite=True)
+        db        = client.get_database_client(DATABASE_ID)
+        container = db.get_container_client(CONTAINER_ID)
+    except Exception as e:
+        app.logger.critical("[tab_table.close_tab()] Error opening container [" + CONTAINER_ID + "] in database [" + DATABASE_ID +"]")
+        app.logger.critical(traceback.format_exc)
+        raise
+
+    try:
+        doc                   = container.read_item(item=id, partition_key=id)
+        doc['closed_status']  = close_type
+    except Exception as e:
+        app.logger.critical("[tab_table.close_tab()] Error retrieving tab from container [" + CONTAINER_ID + "] in database [" + DATABASE_ID +"]")
+        app.logger.critical(traceback.format_exc)
+        raise     
+
+    try:
+        container.replace_item(item=doc, body=doc)
+    except Exception as e:
+        app.logger.critical("[tab_table.close_tab()] Error closing tab in container [" + CONTAINER_ID + "] in database [" + DATABASE_ID +"]")
+        app.logger.critical(traceback.format_exc)
+        raise       
 
     return 0
 
-def delete_tab(id):
-    client    = cosmos_client.CosmosClient(HOST, {'masterKey': MASTER_KEY}, user_agent="CosmosDBPythonQuickstart", user_agent_overwrite=True)
-    db        = client.get_database_client(DATABASE_ID)
-    container = db.get_container_client(CONTAINER_ID)
+def delete_tab(id, app):
+    try:
+        client    = cosmos_client.CosmosClient(HOST, {'masterKey': MASTER_KEY}, user_agent="CosmosDBPythonQuickstart", user_agent_overwrite=True)
+        db        = client.get_database_client(DATABASE_ID)
+        container = db.get_container_client(CONTAINER_ID)
+    except Exception as e:
+        app.logger.critical("[tab_table.delete_tab()] Error opening container [" + CONTAINER_ID + "] in database [" + DATABASE_ID +"]")
+        app.logger.critical(traceback.format_exc)
+        raise
 
-    container.delete_item(item=id, partition_key=id)
+    try:
+        container.delete_item(item=id, partition_key=id)
+    except Exception as e:
+        app.logger.critical("[tab_table.delete_tab()] Error deleting tab from container [" + CONTAINER_ID + "] in database [" + DATABASE_ID +"]")
+        app.logger.critical(traceback.format_exc)
+        raise 
+
     return 0
