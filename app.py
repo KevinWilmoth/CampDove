@@ -24,7 +24,7 @@ app.secret_key = os.urandom(24)
 def home():
     if request.method == 'POST':
         session.pop('user',None)
-        loginInfo = User_Table.login(request.form['username'],request.form['password'])
+        loginInfo = User_Table.login(request.form['username'],request.form['password'],  app)
         for user in loginInfo:
             session['user']      = request.form['username']
             session['user_role'] = user.get('role')
