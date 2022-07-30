@@ -230,7 +230,7 @@ def show_tab():
     id           = request.form['id']
     transactions = transaction_table.get_transactions_for_camper(id,app)
     tab          = tab_table.get_tab(id,app)
-    items        = item_table.get_items()
+    items        = item_table.get_items(app)
 
     transactionDays       = []
     transactionAmounts    = []
