@@ -11,6 +11,7 @@ import datetime
 
 import tab_table
 import transaction_table
+import item_class
 import camper_class
 import transaction
 import os
@@ -167,9 +168,7 @@ def show_tab():
     overLimits            = []
     limitWarnings         = []
     contact_names         = []
-    item_descs            = []
-    item_prices           = []
-    item_prices_formatted = []
+    itemList              = []
 
     tab_closed          = tab.get("closed_status") in ["Refund", "PaidInFull", "Donation"]
     app.logger.info('close tab closed = [' + str(tab_closed) + ']')
@@ -179,9 +178,8 @@ def show_tab():
 
 
     for snackShackItem in items:
-        item_descs.append(snackShackItem.get("description"))
-        item_prices.append(snackShackItem.get("price"))
-        item_prices_formatted.append("${:0,.2f}".format(snackShackItem.get('price')))
+        i1 = item_class.item(snackShackItem)
+        itemList.append(i1)
 
     for doc in tabs:
         c1 = camper_class.camper(app,"", doc)
@@ -234,9 +232,7 @@ def show_tab():
                            contact_names         = contact_names,
                            tab_not_closed        = not tab_closed,
                            tab_closed            = tab_closed,
-                           item_descs            = item_descs,
-                           item_prices           = item_prices,
-                           item_prices_formatted = item_prices_formatted
+                           itemList              = itemList
                           )
 
 def checkAdminAccess():

@@ -232,12 +232,12 @@
             <th>Add Item</th>
             <th>Subtract Item</th>
           </tr> 
-          {% for item in item_descs %}
+          {% for item in itemList %}
           <tr>
-            <td>{{item_descs[loop.index0]}}</td>
-            <td>{{item_prices_formatted[loop.index0]}}</td>
-            <td><button name="Add" type="submit" onclick="addFunds({{item_prices[loop.index0]}})">+</button></td>  
-            <td><button name="Subtract" type="submit" onclick="subtractFunds({{item_prices[loop.index0]}})">-</button></td> 
+            <td>{{itemList[loop.index0].description}}</td>
+            <td>{{itemList[loop.index0].priceDisplay}}</td>
+            <td><button name="Add" type="submit" onclick="addFunds({{itemList[loop.index0].price}})">+</button></td>  
+            <td><button name="Subtract" type="submit" onclick="subtractFunds({{itemList[loop.index0].price}})">-</button></td> 
           </tr>
           {% endfor %}
         </table>      </div>
