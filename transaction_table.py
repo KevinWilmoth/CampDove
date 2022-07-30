@@ -30,7 +30,7 @@ def dayNameFromWeekday(weekday):
     if weekday == 6:
         return "Sunday"
 
-def add_transaction(camperId, transactionAmount, app):
+def add_transaction(newTransaction, app):
     try:
         client    = cosmos_client.CosmosClient(HOST, {'masterKey': MASTER_KEY}, user_agent="CosmosDBPythonQuickstart", user_agent_overwrite=True)
         db        = client.get_database_client(DATABASE_ID)
@@ -40,20 +40,16 @@ def add_transaction(camperId, transactionAmount, app):
         app.logger.critical(traceback.format_exc)
         raise
 
-    item_id   = hash(camperId + transactionAmount + str(datetime.now()))
-    dayofWeek = dayNameFromWeekday(datetime.today().weekday())
-
-    transaction = { 'id'          : str(item_id),
-                    'day_of_week' : dayofWeek,
-                    'amount'      : float(transactionAmount),
-                    'camper_id'   : camperId
-                  }
+    doc = { 'id'          : newTransaction.id,
+            'day_of_week' : newTransaction.dayofWeek,
+            'amount'      : newTransaction.amount,
+            'camper_id'   : newTransaction.camperId
+          }
 
     try:
-        container.create_item(body=transaction)
+        container.create_item(body=doc)
     except e:
         app.logger.critical("[transaction_table.add_transaction()] Error adding transaction to container [" + CONTAINER_ID + "] in database [" + DATABASE_ID +"]")
-        app.logger.critical(traceback.format_exc)
         raise
 
     return 0

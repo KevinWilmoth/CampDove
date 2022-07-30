@@ -190,14 +190,14 @@
               <th>Weekly Total</th>
               <th>Delete</th>
           </tr> 
-          {% for item in transactionDays %}    
+          {% for item in transactionList %}    
           <tr>               
-              <td>{{transactionNumbers[loop.index0]}}</td>
-              <td>{{transactionDays[loop.index0]}}</td>
-              <td>{{transactionAmounts[loop.index0]}}</td>  
+              <td>{{transactionList[loop.index0].counter}}</td>
+              <td>{{transactionList[loop.index0].dayofWeek}}</td>
+              <td>{{transactionList[loop.index0].amount}}</td>  
               <td  {% if limitWarnings[loop.index0] %} style="background-color: yellow;"{% endif %} {% if overLimits[loop.index0] %} style="background-color: red; color: white;"{% endif %}>{{transactionTotals[loop.index0]}}</td> 
                   <form action="{{ url_for('delete_transaction') }}" method="post">
-                      <input type="hidden" id="transaction_id" name="transaction_id" value="{{transactionIds[loop.index0]}}">
+                      <input type="hidden" id="transaction_id" name="transaction_id" value="{{transactionList[loop.index0].id}}">
                       <input type="hidden" id="id" name="id" value="{{id}}">
                       <td><button name="Delete" type="submit">Delete</button></td>   
                   </form>  

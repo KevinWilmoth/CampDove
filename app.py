@@ -9,10 +9,10 @@ import azure.cosmos.exceptions as exceptions
 from azure.cosmos.partition_key import PartitionKey
 import datetime
 
-import config
 import tab_table
 import transaction_table
 import camper_class
+import transaction
 import os
 import User_Table
 import item_table
@@ -99,9 +99,8 @@ def add_transaction():
     if(checkAdminAccess()<0):
         return redirect(url_for('index'))
 
-    id     = request.form['id']
-    amount = request.form['transaction_amount']
-    transaction_table.add_transaction(id,amount,app)
+    t1 = transaction.transaction(request)
+    transaction_table.add_transaction(t1,app)
 
     return redirect(url_for('show_tab'), code=307)
 
@@ -133,9 +132,6 @@ def tabs():
     contact_names        = []
 
     for doc in tabs:
-        TabClosed     = False
-        if (doc.get("closed_status") in ["Refund", "PaidInFull", "Donation"]):
-            TabClosed = True
         c1 = camper_class.camper(app,"", doc)
         campers.append(c1)                   
 
@@ -165,11 +161,8 @@ def show_tab():
     tab          = tab_table.get_tab(id,app)
     items        = item_table.get_items(app)
 
-    transactionDays       = []
-    transactionAmounts    = []
-    transactionNumbers    = []
+    transactionList       = []
     transactionTotals     = []
-    transactionIds        = []
     churches              = []
     overLimits            = []
     limitWarnings         = []
@@ -191,27 +184,22 @@ def show_tab():
         item_prices_formatted.append("${:0,.2f}".format(snackShackItem.get('price')))
 
     for doc in tabs:
-        TabClosed     = False
-        if (doc.get("closed_status") in ["Refund", "PaidInFull", "Donation"]):
-            TabClosed = True
         c1 = camper_class.camper(app,"", doc)
         campers.append(c1)
-        
+
         if (doc.get('home_church') not in churches):
             churches.append(doc.get('home_church'))
         if (doc.get('contact_name') not in contact_names):
             contact_names.append(doc.get('contact_name'))   
         
 
-    for transaction in transactions:
+    for doc in transactions:
         limit_warning = False
         limit_over    = False
-        transactionAmount = float(transaction.get('amount'))
+        transactionAmount = float(doc.get('amount'))
         transactionTotal  = transactionTotal + transactionAmount
-        transactionDays.append(transaction.get('day_of_week'))
-        transactionAmounts.append("${:0,.2f}".format(transactionAmount))
-        transactionIds.append(transaction.get('id'))
-        transactionNumbers.append(str(counter))
+        t1 = transaction.transaction("",doc,str(counter))
+        transactionList.append(t1)
         transactionTotals.append("${:0,.2f}".format(transactionTotal))
         counter = counter + 1
         if (float(transactionTotal) > tab.get('weeklyLimit')) and (tab.get('noLimit') == False):
@@ -238,11 +226,8 @@ def show_tab():
                            workerName            = tab.get('workerName'),
                            id                    = tab.get('id'),
                            prepaidAmount         = "${:0,.2f}".format(tab.get('prepaid')),
-                           transactionDays       = transactionDays,
-                           transactionAmounts    = transactionAmounts,
-                           transactionNumbers    = transactionNumbers,
+                           transactionList       = transactionList,
                            transactionTotals     = transactionTotals,
-                           transactionIds        = transactionIds,
                            overLimits            = overLimits,
                            limitWarnings         = limitWarnings,
                            churches              = churches,
