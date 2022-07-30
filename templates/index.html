@@ -25,6 +25,10 @@
                 <label for="passwprd">Password: &nbsp;</label>
                 <input type="password" name="password" required/>
                 <input type="submit" />
+                {% if loginError %}
+                <br>
+                <h2>Error Logging In!</h2>
+                {% endif %}
               </form>
            </div>
           </div>

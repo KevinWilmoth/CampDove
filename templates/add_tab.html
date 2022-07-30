@@ -34,6 +34,10 @@
         <h2 style="display: inline;">Camper List</h2>
         <input class="mt-2" type="text" id="lastNameSearch" onkeyup="lastNameSearch()" placeholder="Search by Last Name" title="Type in a name" style="float: right;"/>
         &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<input class="mt-2" type="text" id="churchSearch" onkeyup="churchSearch()" placeholder="Search by Churches" title="Type in a name"/>
+        {% if tabError %}
+        <br>
+        <h2>Error Loading Tabs</h2>
+        {% endif %}
         <table id="camperTable" class = "campertable">
           <tr>
             <th style="text-align: center;">Camper Last Name</th>

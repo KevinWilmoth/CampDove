@@ -21,55 +21,102 @@ import item_table
 app = flask.Flask(__name__)
 app.secret_key = os.urandom(24)
 
+###########
+# ROUTE:   Default
+# RENDERS: index.html
+###########
 @app.route('/', methods=['GET','POST'])
 def home():
-    if request.method == 'POST':
-        session.pop('user',None)
-        loginInfo = User_Table.login(request.form['username'],request.form['password'],  app)
-        for user in loginInfo:
-            session['user']      = request.form['username']
-            session['user_role'] = user.get('role')
-            return redirect(url_for('tabs'))
+    try:
+        if request.method == 'POST':
+            session.pop('user',None)
+            loginInfo = User_Table.login(request.form['username'],request.form['password'],  app)
+            loggedIn  = False
+            for user in loginInfo:
+                loggedIn = True
+                session['user']      = request.form['username']
+                session['user_role'] = user.get('role')
+                return redirect(url_for('tabs'))
+            if loggedIn == False:
+                raise Exception("Could no log in")
+    except Exception as e:
+        app.logger.critical("Could not Login User")
+        return render_template('index.html', loginError = True)
 
-    return render_template('index.html')
+    return render_template('index.html', loginError = False)
 
+###########
+# ROUTE:   /logout
+# RENDERS: index.html
+###########
 @app.route('/logout', methods=['GET','POST'])
 def logout():
     session.pop('user',None)
     session.pop('user_role',None)
-    return render_template('index.html')
+    return render_template('index.html', loginError = False)
 
+###########
+# ROUTE:   /index
+# RENDERS: index.html
+###########
 @app.route('/index', methods=['GET','POST'])
 def index():
-    if request.method == 'POST':
-        session.pop('user',None)
-        session.pop('user_role',None)
-        if request.form['password'] == 'password':
-            session['user'] = request.form['username']
-            return redirect(url_for('tabs'))
+    try:
+        if request.method == 'POST':
+            session.pop('user',None)
+            loginInfo = User_Table.login(request.form['username'],request.form['password'],  app)
+            loggedIn  = False
+            for user in loginInfo:
+                loggedIn = True
+                session['user']      = request.form['username']
+                session['user_role'] = user.get('role')
+                return redirect(url_for('tabs'))
+            if loggedIn == False:
+                raise Exception("Could no log in")
+    except Exception as e:
+        app.logger.critical("Could not Login User")
+        return render_template('index.html', loginError = True)
 
-    return render_template('index.html')
+    return render_template('index.html', loginError = False)
 
+###########
+# ROUTE:   /add_tab
+# REDIRECTS
+###########
 @app.route('/add_tab', methods=['POST'])
 def add_tab():
     if(checkAdminAccess()<0):
         return redirect(url_for('index'))
     
-    c1 = camper_class.camper(app, request)
-    tab_table.add_tab(c1 ,app)
+    try:
+        c1 = camper_class.camper(app, request)
+        tab_table.add_tab(c1 ,app)
+    except Exception as e:
+        app.logger.critical("[add_tab()] Could not Add a Tab")
 
     return redirect('/tabs')
 
+###########
+# ROUTE:   /edit_tab
+# REDIRECTS
+###########
 @app.route('/edit_tab', methods=['POST'])
 def edit_tab():
     if(checkAdminAccess()<0):
         return redirect(url_for('index'))
 
-    c1 = camper_class.camper(app, request)
-    tab_table.edit_tab(c1 ,app)
+    try:
+        c1 = camper_class.camper(app, request)
+        tab_table.edit_tab(c1 ,app)
+    except Exception as e:
+        app.logger.critical("[edit_tab()] Could not Edit a Tab")
 
     return redirect(url_for('show_tab'), code=307)
 
+###########
+# ROUTE:   /delete_tab
+# REDIRECTS
+###########
 @app.route('/delete_tab', methods=['POST'])
 def delete_tab():
     if(checkAdminAccess()<0):
@@ -77,57 +124,83 @@ def delete_tab():
 
     id   = request.form['id']
 
-    app.logger.info('app.delete_tab id = [' + id + ']')
-
-    tab_table.delete_tab(id,app)
+    try:
+        tab_table.delete_tab(id,app)
+    except Exception as e:
+        app.logger.critical("[delete_tab()] Could not Delete a Tab")
 
     return redirect('/tabs')
 
+###########
+# ROUTE:   /close_tab
+# REDIRECTS
+###########
 @app.route('/close_tab', methods=['POST'])
 def close_tab():
-    checkAdminAccess()
+    if(checkAdminAccess()<0):
+        return redirect(url_for('index'))
 
     id         = request.form['id']
     close_type = request.form['close_tab_option']
-    app.logger.info('close tab option = [' + close_type + ']')    
 
-    tab_table.close_tab(id, close_type, app)
+    try:
+        tab_table.close_tab(id, close_type, app)
+    except Exception as e:
+        app.logger.critical("[close_tab()] Could not Close a Tab")
 
     return redirect(url_for('show_tab'), code=307)
 
+###########
+# ROUTE:   /add_transaction
+# REDIRECTS
+###########
 @app.route('/add_transaction', methods=['POST'])
 def add_transaction():
     if(checkAdminAccess()<0):
         return redirect(url_for('index'))
 
-    t1 = transaction.transaction(request)
-    transaction_table.add_transaction(t1,app)
+    try:
+        t1 = transaction.transaction(request)
+        transaction_table.add_transaction(t1,app)
+    except Exception as e:
+        app.logger.critical("[add_transaction()] Could not Add a Transaction")
 
     return redirect(url_for('show_tab'), code=307)
 
+###########
+# ROUTE:   /delete_transaction
+# REDIRECTS
+###########
 @app.route('/delete_transaction', methods=['POST'])
 def delete_transaction():
     if(checkAdminAccess()<0):
         return redirect(url_for('index'))
 
     transaction_id  = request.form['transaction_id']
-    transaction_table.delete_transaction(transaction_id,app)
+
+    try:
+        transaction_table.delete_transaction(transaction_id,app)
+    except Exception as e:
+        app.logger.critical("[Delete_transaction()] Could not Delete a Transaction")
 
     return redirect(url_for('show_tab'), code=307)
 
+###########
+# ROUTE:   /tabs
+# RENDERS: add_tab.html
+###########
 @app.route('/tabs', methods=['GET','POST'])
 def tabs():
     if(checkAdminAccess()<0):
         return redirect(url_for('index'))
 
-    if 'user_role' not in session:
-        return redirect(url_for('index'))
+    tabGetError = False
+    try:
+        tabs = tab_table.get_tabs(app)
+    except Exception as e:
+        app.logger.critical("[tabs()] Could not Get List of Tabs")
+        tabGetError = True
 
-    if session['user_role'] != 'SnackShackAdmin':
-        app.logger.info('Incorrect Role!')
-        return redirect(url_for('index'))
-
-    tabs = tab_table.get_tabs(app)
     campers              = []
     churches             = []
     contact_names        = []
@@ -146,22 +219,32 @@ def tabs():
     return render_template('add_tab.html', 
                            campers       = campers,
                            churhces      = churches,
-                           contact_names = contact_names
+                           contact_names = contact_names,
+                           tabError      = tabGetError
                           )
-
+###########
+# ROUTE:   /show_tabs
+# RENDERS: show_tab.html
+###########
 @app.route('/show_tab', methods=['POST','GET'])
 def show_tab():
     if(checkAdminAccess()<0):
         return redirect(url_for('index'))
 
-    tabs = tab_table.get_tabs(app)
-    campers              = []
-
     id           = request.form['id']
-    transactions = transaction_table.get_transactions_for_camper(id,app)
-    tab          = tab_table.get_tab(id,app)
-    items        = item_table.get_items(app)
 
+    loadError = False
+    try:
+        tabs         = tab_table.get_tabs(app)
+        transactions = transaction_table.get_transactions_for_camper(id,app)
+        tab          = tab_table.get_tab(id,app)
+        items        = item_table.get_items(app)
+    except Exception as e:
+        app.logger.critical("[show_tabs()] Error getting Database info")
+        loadError = True
+
+
+    campers               = []
     transactionList       = []
     transactionTotals     = []
     churches              = []
@@ -169,9 +252,6 @@ def show_tab():
     limitWarnings         = []
     contact_names         = []
     itemList              = []
-
-    tab_closed          = tab.get("closed_status") in ["Refund", "PaidInFull", "Donation"]
-    app.logger.info('close tab closed = [' + str(tab_closed) + ']')
 
     counter            = 1
     transactionTotal   = 0
@@ -209,30 +289,18 @@ def show_tab():
 
             
     campers.sort(key=lambda x: (x.lname, x.fname))
-
+    currentCamper = camper_class.camper(app,"", tab)
     return render_template('show_tab.html', 
                            campers = campers,
-                           camperFirstName       = tab.get('camper_first_name'),
-                           camperLastName        = tab.get('camper_last_name'), 
-                           NoLimit               = tab.get('noLimit'),
-                           homeChurch            = tab.get('home_church'),
-                           dailyLimit            = "${:0,.2f}".format(tab.get('dailyLimit')),
-                           contactName           = tab.get('contact_name'),
-                           weeklyLimit           = "${:0,.2f}".format(tab.get('weeklyLimit')),
-                           weeklyLimitNum        = tab.get('weeklyLimit'),
-                           prepaidAmountNum      = tab.get('prepaid'),
-                           workerName            = tab.get('workerName'),
-                           id                    = tab.get('id'),
-                           prepaidAmount         = "${:0,.2f}".format(tab.get('prepaid')),
+                           currentCamper         = currentCamper,
                            transactionList       = transactionList,
                            transactionTotals     = transactionTotals,
                            overLimits            = overLimits,
                            limitWarnings         = limitWarnings,
                            churches              = churches,
                            contact_names         = contact_names,
-                           tab_not_closed        = not tab_closed,
-                           tab_closed            = tab_closed,
-                           itemList              = itemList
+                           itemList              = itemList,
+                           loadError             = loadError
                           )
 
 def checkAdminAccess():

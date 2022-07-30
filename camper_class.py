@@ -103,6 +103,10 @@ class camper:
             else:
                 self.dailyLimit = float(0.0)
 
+            self.dailyLimitFormat  = "${:0,.2f}".format(self.dailyLimit)
+            self.weeklyLimitFormat = "${:0,.2f}".format(self.weeklyLimit)
+            self.prepaidFormat     = "${:0,.2f}".format(self.prepaid_amount)
+
             self.TabClosed = False
             if "id" in request.form:
                 self.id = request.form["id"]
@@ -128,6 +132,9 @@ class camper:
             self.dailyLimit     = doc.get('dailyLimit')
             self.prepaid_amount = doc.get('prepaid')
             self.id             = doc.get('id')
+            self.dailyLimitFormat  = "${:0,.2f}".format(self.dailyLimit)
+            self.weeklyLimitFormat = "${:0,.2f}".format(self.weeklyLimit)
+            self.prepaidFormat     = "${:0,.2f}".format(self.prepaid_amount)
             self.TabClosed      = False
             if (doc.get("closed_status") in ["Refund", "PaidInFull", "Donation"]):
                 self.TabClosed = True

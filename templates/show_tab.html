@@ -3,7 +3,6 @@
 <head>
     <meta charset="UTF-8">
     <title>Snack Shack App</title>
-    <title>Snack Shack App</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.3.1/dist/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
     <link rel="stylesheet" type="text/css" href="{{ url_for('static',filename='styles/CampDove.css') }}">
     <link rel="icon" type="image/png" sizes="32x32" href="{{ url_for('static',filename='images/favicon-32x32.png') }}" />
@@ -18,6 +17,10 @@
       </div>
       <div class="col-lg-auto">
         <h1>Camp Dove Tabs</h1>
+        {% if loadError %}
+        <br>
+        <h2>DATABASE ERROR!!!</h2>
+        {% endif %}
       </div>
       <div class="col">
         <div style="float: right">
@@ -148,30 +151,30 @@
         <table class = "snackshacktable">
           <tr>
               <th>Camper Name</th>
-              <td>{{camperFirstName}}&nbsp;{{camperLastName}}</td>
+              <td>{{currentCamper.fname}}&nbsp;{{currentCamper.lname}}</td>
               <th>No Limit</th>
-              <td style="text-align: center;"><input type="checkbox" id="no_limit" name="no_limit" disabled="disabled" {% if NoLimit %} checked{% endif %}/></td>
+              <td style="text-align: center;"><input type="checkbox" id="no_limit" name="no_limit" disabled="disabled" {% if currentCamper.noLimit %} checked{% endif %}/></td>
           </tr>
           <tr>
               <th>Home Church</th>
-              <td>{{homeChurch}}</td>
+              <td>{{currentCamper.church}}</td>
               <th>Daily Limit Amount</th>
-              <td>{{dailyLimit}}</td>
+              <td>{{currentCamper.dailyLimitFormat}}</td>
           </tr>
           <tr>
               <th>Contact Name</th>
-              <td>{{contactName}}</td>
+              <td>{{currentCamper.contactName}}</td>
               <th>Weekly Limit Amount</th>
-              <td>{{weeklyLimit}}</td>
+              <td>{{currentCamper.weeklyLimitFormat}}</td>
           </tr>
           <tr>
               <th>Snack Shack Worker</th>
-              <td>{{workerName}}</td>
+              <td>{{currentCamper.worker}}</td>
               <th>Prepaid Amount</th>
-              <td>{{prepaidAmount}}</td>
+              <td>{{currentCamper.prepaidFormat}}</td>
           </tr>   
         </table>
-        {% if tab_not_closed %}
+        {% if not currentCamper.TabClosed %}
         <br>
         <h2>New Transaction</h2>
         <form action="{{ url_for('add_transaction') }}" method="post">
@@ -204,7 +207,10 @@
           </tr>
           {% endfor %} 
         </table>
-        {% if tab_not_closed %}
+        {% if currentCamper.TabClosed %}
+        <br>
+        <h2>Tab is Closed</h2>
+        {% else %}
         <br>
         <h2>Close Tab</h2>
         <form action="{{ url_for('close_tab') }}" method="post">
@@ -217,10 +223,6 @@
           <input type="hidden" id="id" name="id" value="{{id}}">
           <button name="CloseTab" type="submit">Close Tab</button>
         </form>  
-        {% endif %}
-        {% if tab_closed %}
-        <br>
-        <h2>Tab is Closed</h2>
         {% endif %}
       </div>
       <div class="col">
