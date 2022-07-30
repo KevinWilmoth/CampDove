@@ -1,5 +1,5 @@
 class camper:
-    def __init__(self, fname, lname, church, contactName, worker, noLimit, weeklyLimit, dailyLimit, prepaidAmount, closedClass, id):
+    def __init__(self, fname, lname, church, contactName, worker, noLimit, weeklyLimit, dailyLimit, prepaidAmount, TabClosed, id):
         self.fname          = fname
         self.lname          = lname
         self.church         = church
@@ -9,5 +9,5 @@ class camper:
         self.weeklyLimit    = weeklyLimit
         self.dailyLimit     = dailyLimit
         self.prepaid_amount = prepaidAmount
-        self.closedClass    = closedClass
+        self.TabClosed      = TabClosed
         self.id = id

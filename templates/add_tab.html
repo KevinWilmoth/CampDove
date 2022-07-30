@@ -36,16 +36,18 @@
         &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<input class="mt-2" type="text" id="churchSearch" onkeyup="churchSearch()" placeholder="Search by Churches" title="Type in a name"/>
         <table id="camperTable" class = "campertable">
           <tr>
-            <th>Camper Last Name</th>
-            <th>Camper First Name</th>
-            <th>Church</th>
+            <th style="text-align: center;">Camper Last Name</th>
+            <th style="text-align: center;">Camper First Name</th>
+            <th style="text-align: center;">Church</th>
+            <th style="text-align: center;">Closed</th>
           </tr>
           {% for item in campers %}    
           <tr class="{{campers[loop.index0].closedClass}}" camper_id="{{campers[loop.index0].id}}" onclick="ShowTab(this)">               
             <td class="{{campers[loop.index0].closedClass}}">{{campers[loop.index0].lname}}</td>
             <td class="{{campers[loop.index0].closedClass}}">{{campers[loop.index0].fname}}</td>
             <td class="{{campers[loop.index0].closedClass}}">{{campers[loop.index0].church}}</td>   
-
+                                                                                                
+            <td style="text-align: center;"><input type="checkbox" id="no_limit" name="no_limit" disabled="disabled" {% if campers[loop.index0].TabClosed %} checked{% endif %}/></td>
             <form id="show_tab_{{campers[loop.index0].id}}" action="{{ url_for('show_tab') }}" method="post">
                 <input type="hidden" id="id" name="id" value="{{campers[loop.index0].id}}">
                 <button name="AddTransaction" type="submit" style="color: transparent; background-color: transparent; border-color: transparent; cursor: default;">Tab</button>  

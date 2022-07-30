@@ -190,9 +190,9 @@ def tabs():
     contact_names        = []
 
     for doc in tabs:
-        closedClass     = ""
+        TabClosed     = False
         if (doc.get("closed_status") in ["Refund", "PaidInFull", "Donation"]):
-            closedClass = "warning"
+            TabClosed = True
         c1 = camper_class.camper(doc.get('camper_first_name'),
                                 doc.get('camper_last_name'),
                                 doc.get('home_church'),
@@ -202,7 +202,7 @@ def tabs():
                                 doc.get('weeklyLimit'),
                                 doc.get('dailyLimit'),
                                 doc.get('prepaid'),
-                                closedClass,
+                                TabClosed,
                                 doc.get('id')
                    )
         if (doc.get('home_church') not in churches):
@@ -238,7 +238,8 @@ def show_tab():
     transactionTotals     = []
     transactionIds        = []
     churches              = []
-    weeklyLimitWarnings   = []
+    overLimits            = []
+    limitWarnings         = []
     contact_names         = []
     item_descs            = []
     item_prices           = []
@@ -257,9 +258,9 @@ def show_tab():
         item_prices_formatted.append("${:0,.2f}".format(snackShackItem.get('price')))
 
     for doc in tabs:
-        closedClass     = ""
+        TabClosed     = False
         if (doc.get("closed_status") in ["Refund", "PaidInFull", "Donation"]):
-            closedClass = "warning"
+            TabClosed = True
         c1 = camper_class.camper(doc.get('camper_first_name'),
                                 doc.get('camper_last_name'),
                                 doc.get('home_church'),
@@ -269,7 +270,7 @@ def show_tab():
                                 doc.get('weeklyLimit'),
                                 doc.get('dailyLimit'),
                                 doc.get('prepaid'),
-                                closedClass,
+                                TabClosed,
                                 doc.get('id')
                    )
         if (doc.get('home_church') not in churches):
@@ -279,7 +280,8 @@ def show_tab():
         campers.append(c1)
 
     for transaction in transactions:
-        weeklyLimitWarning = 'noWarning'
+        limit_warning = False
+        limit_over    = False
         transactionAmount = float(transaction.get('amount'))
         transactionTotal  = transactionTotal + transactionAmount
         transactionDays.append(transaction.get('day_of_week'))
@@ -287,14 +289,13 @@ def show_tab():
         transactionIds.append(transaction.get('id'))
         transactionNumbers.append(str(counter))
         transactionTotals.append("${:0,.2f}".format(transactionTotal))
-        weeklyLimitWarnings.append
         counter = counter + 1
         if (float(transactionTotal) > tab.get('weeklyLimit')) and (tab.get('noLimit') == False):
-            weeklyLimitWarning = 'overLimit'
+            limit_over = True
         elif ((float(transactionTotal) + 5.0) >= tab.get('weeklyLimit')) and (tab.get('noLimit') == False):
-             weeklyLimitWarning = 'warning'
-
-        weeklyLimitWarnings.append(weeklyLimitWarning)
+             limit_warning = True
+        overLimits.append(limit_over)
+        limitWarnings.append(limit_warning)
 
             
     campers.sort(key=lambda x: (x.lname, x.fname))
@@ -318,7 +319,8 @@ def show_tab():
                            transactionNumbers    = transactionNumbers,
                            transactionTotals     = transactionTotals,
                            transactionIds        = transactionIds,
-                           weeklyLimitWarnings   = weeklyLimitWarnings,
+                           overLimits            = overLimits,
+                           limitWarnings         = limitWarnings,
                            churches              = churches,
                            contact_names         = contact_names,
                            tab_not_closed        = not tab_closed,

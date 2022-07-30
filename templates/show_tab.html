@@ -7,45 +7,6 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.3.1/dist/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
     <link rel="stylesheet" type="text/css" href="{{ url_for('static',filename='styles/CampDove.css') }}">
     <link rel="icon" type="image/png" sizes="32x32" href="{{ url_for('static',filename='images/favicon-32x32.png') }}" />
-    <style>
-
-        .leftSide {
-          float: left;
-          width: 49%;
-          border-width:2px;
-          border-style:solid;
-          border-color:black;
-        }
-
-        .addCamper {
-          border-width:2px;
-          border-style:solid;
-          border-color:black;
-        }
-      
-        .tabList {
-          border-width:2px;
-          border-style:solid;
-          border-color:black;
-        }
-
-        .tabDetail {
-          border-width:2px;
-          border-style:solid;
-          border-color:black;
-          float: right;
-          width: 49%;
-        }
-
-        .overLimit {
-          background-color:red;
-          color: white;
-        }
-
-        .warning {
-          background-color:yellow;
-        }
-        </style>
 </head>
 
 
@@ -77,15 +38,17 @@
         &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<input class="mt-2" type="text" id="churchSearch" onkeyup="churchSearch()" placeholder="Search by Churches" title="Type in a name"/>
         <table id="camperTable" class = "campertable">
           <tr>
-            <th>Camper Last Name</th>
-            <th>Camper First Name</th>
-            <th>Church</th>
+            <th style="text-align: center;">Camper Last Name</th>
+            <th style="text-align: center;"">Camper First Name</th>
+            <th style="text-align: center;"">Church</th>
+            <th style="text-align: center;"">Closed</th>
           </tr>
           {% for item in campers %}    
           <tr class="{{campers[loop.index0].closedClass}}" camper_id="{{campers[loop.index0].id}}" onclick="ShowTab(this)">               
             <td class="{{campers[loop.index0].closedClass}}">{{campers[loop.index0].lname}}</td>
             <td class="{{campers[loop.index0].closedClass}}">{{campers[loop.index0].fname}}</td>
-            <td class="{{campers[loop.index0].closedClass}}">{{campers[loop.index0].church}}</td>  
+            <td class="{{campers[loop.index0].closedClass}}">{{campers[loop.index0].church}}</td> 
+            <td style="text-align: center;"><input type="checkbox" id="no_limit" name="no_limit" disabled="disabled" {% if campers[loop.index0].TabClosed %} checked{% endif %}/></td>
             <form id="show_tab_{{campers[loop.index0].id}}" action="{{ url_for('show_tab') }}" method="post">
                 <input type="hidden" id="id" name="id" value="{{campers[loop.index0].id}}">
                 <button name="AddTransaction" type="submit" style="color: transparent; background-color: transparent; border-color: transparent; cursor: default;">Tab</button>  
@@ -97,6 +60,7 @@
             <td>Create New Camper</td>
             <td></td>
             <td></td>  
+            <td></td>
             <form id="show_tab_new" action="{{ url_for('tabs') }}" method="post">
                 <input type="hidden" id="id" name="id" value="new">
                 <button name="AddTransaction" type="submit" style="color: transparent; background-color: transparent; border-color: transparent; cursor: default;">New</button>  
@@ -186,7 +150,7 @@
               <th>Camper Name</th>
               <td>{{camperFirstName}}&nbsp;{{camperLastName}}</td>
               <th>No Limit</th>
-              <td>{{NoLimit}}</td>
+              <td style="text-align: center;"><input type="checkbox" id="no_limit" name="no_limit" disabled="disabled" {% if NoLimit %} checked{% endif %}/></td>
           </tr>
           <tr>
               <th>Home Church</th>
@@ -231,7 +195,7 @@
               <td>{{transactionNumbers[loop.index0]}}</td>
               <td>{{transactionDays[loop.index0]}}</td>
               <td>{{transactionAmounts[loop.index0]}}</td>  
-              <td class="{{weeklyLimitWarnings[loop.index0]}}">{{transactionTotals[loop.index0]}}</td> 
+              <td  {% if limitWarnings[loop.index0] %} style="background-color: yellow;"{% endif %} {% if overLimits[loop.index0] %} style="background-color: red; color: white;"{% endif %}>{{transactionTotals[loop.index0]}}</td> 
                   <form action="{{ url_for('delete_transaction') }}" method="post">
                       <input type="hidden" id="transaction_id" name="transaction_id" value="{{transactionIds[loop.index0]}}">
                       <input type="hidden" id="id" name="id" value="{{id}}">
