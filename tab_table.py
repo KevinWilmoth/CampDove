@@ -13,7 +13,7 @@ DATABASE_ID      = config.settings['database_id']
 CONTAINER_ID     = config.settings['tab_container_id']
 MAX_RETURN_ITEMS = config.settings["max_return_items"]
 
-def add_tab(camperFirstName, camperLastName, homeChurch, contactName, workerName, weeklyLimit, prepaid, noLimit,app):
+def add_tab(camper,app):
     try:
         client    = cosmos_client.CosmosClient(HOST, {'masterKey': MASTER_KEY}, user_agent="CosmosDBPythonQuickstart", user_agent_overwrite=True)
         db        = client.get_database_client(DATABASE_ID)
@@ -22,32 +22,18 @@ def add_tab(camperFirstName, camperLastName, homeChurch, contactName, workerName
         app.logger.critical("[tab_table.add_tab()] Error opening container [" + CONTAINER_ID + "] in database [" + DATABASE_ID +"]")
         app.logger.critical(traceback.format_exc)
         raise
-        
-    
-    noLimitBoolean = noLimit=='True'
 
-    if noLimitBoolean==True:
-        dailyLimit = 0.0
-        weeklyLimit = 0.0
-    elif float(prepaid) > float(weeklyLimit):
-        dailyLimit = float(prepaid) / 4
-    elif float(weeklyLimit) > 0:
-        dailyLimit = float(weeklyLimit) / 4      
-    else:
-        dailyLimit = 0.0
-
-    item_id       = hash(camperFirstName+camperLastName+homeChurch+contactName+workerName+str(weeklyLimit)+str(prepaid)+str(noLimit)+str(random.randint(0,500)))
-
-    tab = {'id'                : str(item_id),
-           'camper_first_name' : camperFirstName,
-           'camper_last_name'  : camperLastName,
-           'home_church'       : homeChurch,
-           'contact_name'      : contactName,
-           'workerName'        : workerName,
-           'weeklyLimit'       : float(weeklyLimit),
-           'dailyLimit'        : float(dailyLimit),
-           'prepaid'           : float(prepaid),
-           'noLimit'           : noLimitBoolean
+    tab = {'id'                : camper.id,
+           'camper_first_name' : camper.fname,
+           'camper_last_name'  : camper.lname,
+           'home_church'       : camper.church,
+           'contact_name'      : camper.contactName,
+           'workerName'        : camper.worker,
+           'weeklyLimit'       : camper.weeklyLimit,
+           'dailyLimit'        : camper.dailyLimit,
+           'prepaid'           : camper.prepaid_amount,
+           'noLimit'           : camper.noLimit,
+           'closed_status'     : "Open"
         }
 
     try:
@@ -59,7 +45,7 @@ def add_tab(camperFirstName, camperLastName, homeChurch, contactName, workerName
 
     return 0
 
-def edit_tab(camperFirstName, camperLastName, homeChurch, contactName, workerName, weeklyLimit, prepaid, noLimit,app, id):
+def edit_tab(camper, app):
     try:
         client    = cosmos_client.CosmosClient(HOST, {'masterKey': MASTER_KEY}, user_agent="CosmosDBPythonQuickstart", user_agent_overwrite=True)
         db        = client.get_database_client(DATABASE_ID)
@@ -68,35 +54,24 @@ def edit_tab(camperFirstName, camperLastName, homeChurch, contactName, workerNam
         app.logger.critical("[tab_table.edit_tab()] Error opening container [" + CONTAINER_ID + "] in database [" + DATABASE_ID +"]")
         app.logger.critical(traceback.format_exc)
         raise
-    
-    noLimitBoolean = noLimit=='True'
-
-    if noLimitBoolean==True:
-        dailyLimit = 0.0
-        weeklyLimit = 0.0
-    elif float(prepaid) > float(weeklyLimit):
-        dailyLimit = float(prepaid) / 4
-    elif float(weeklyLimit) > 0:
-        dailyLimit = float(weeklyLimit) / 4      
-    else:
-        dailyLimit = 0.0
 
     try:
-        doc = container.read_item(item=id, partition_key=id)
+        doc = container.read_item(item=camper.id, partition_key=camper.id)
     except Exception as e:
         app.logger.critical("[tab_table.edit_tab()] Error reading tab in container [" + CONTAINER_ID + "] in database [" + DATABASE_ID +"]")
         app.logger.critical(traceback.format_exc)
         raise
 
-    doc['camper_first_name'] = camperFirstName
-    doc['camper_last_name']  = camperLastName
-    doc['home_church']       = homeChurch
-    doc['contact_name']      = contactName
-    doc['workerName']        = workerName
-    doc['weeklyLimit']       = float(weeklyLimit)
-    doc['dailyLimit']        = float(dailyLimit)
-    doc['prepaid']           = float(prepaid)
-    doc['noLimit']           = noLimitBoolean
+    doc['camper_first_name'] = camper.fname
+    doc['camper_last_name']  = camper.lname
+    doc['home_church']       = camper.church
+    doc['contact_name']      = camper.contactName
+    doc['workerName']        = camper.worker
+    doc['weeklyLimit']       = camper.weeklyLimit
+    doc['dailyLimit']        = camper.dailyLimit
+    doc['prepaid']           = camper.prepaid_amount
+    doc['noLimit']           = camper.noLimit
+    doc['closed_status']     = "Open"
 
     try:
         container.replace_item(item=doc, body=doc)

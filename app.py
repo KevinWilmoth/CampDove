@@ -53,47 +53,9 @@ def index():
 def add_tab():
     if(checkAdminAccess()<0):
         return redirect(url_for('index'))
-
-    #Required Fields
-    camper_lname   = request.form['camper_last_name']
-    worker_name    = request.form['worker_name']
-
-    #Optional Fields
-    camper_fname   = ""
-    if 'camper_first_name' in request.form:
-        camper_fname   = request.form['camper_first_name']
-
-    church_name   = ""
-    if "church" in request.form:
-        church_name    = request.form['church']
-
-    contact_name   = ""
-    if "contact_name" in request.form:
-        contact_name    = request.form['contact_name']  
-
-    no_limit       = 'False'    
-    if "no_limit" in request.form:
-        no_limit = 'True'
     
-    if 'weekly_limit' not in request.form:
-        weekly_limit = '0.0'
-    elif request.form['weekly_limit']=='':
-        weekly_limit = '0.0'
-    else:
-        weekly_limit   = request.form['weekly_limit']
-
-    if 'prepaid_amount' not in request.form:
-        prepaid_amount = '0.0'
-    elif request.form['prepaid_amount']=='':
-        prepaid_amount = '0.0'
-    else:
-        prepaid_amount = request.form['prepaid_amount']
-        
-
-    app.logger.info('prepaid_amount = [' + prepaid_amount + ']')
-    app.logger.info('weekly_limit = [' + weekly_limit + ']')
-
-    tab_table.add_tab(camper_fname, camper_lname, church_name, contact_name, worker_name, weekly_limit, prepaid_amount, no_limit,app)
+    c1 = camper_class.camper(app, request)
+    tab_table.add_tab(c1 ,app)
 
     return redirect('/tabs')
 
@@ -102,27 +64,8 @@ def edit_tab():
     if(checkAdminAccess()<0):
         return redirect(url_for('index'))
 
-    camper_fname   = request.form['camper_first_name']
-    camper_lname   = request.form['camper_last_name']
-    church_name    = request.form['church']
-    contact_name   = request.form['contact_name']
-    worker_name    = request.form['worker_name']
-    id             = request.form['id']
-    no_limit       = 'False'
-    
-    if "no_limit" in request.form:
-        no_limit = 'True'
-    
-    if 'weekly_limit' not in request.form:
-        weekly_limit = '0.0'
-    else:
-        weekly_limit   = request.form['weekly_limit']
-
-    prepaid_amount = request.form['prepaid_amount']
-    if prepaid_amount=='':
-        prepaid_amount = '0.0'
-
-    tab_table.edit_tab(camper_fname, camper_lname, church_name, contact_name, worker_name, weekly_limit, prepaid_amount, no_limit,app,id)
+    c1 = camper_class.camper(app, request)
+    tab_table.edit_tab(c1 ,app)
 
     return redirect(url_for('show_tab'), code=307)
 
@@ -193,23 +136,13 @@ def tabs():
         TabClosed     = False
         if (doc.get("closed_status") in ["Refund", "PaidInFull", "Donation"]):
             TabClosed = True
-        c1 = camper_class.camper(doc.get('camper_first_name'),
-                                doc.get('camper_last_name'),
-                                doc.get('home_church'),
-                                doc.get('contact_name'),
-                                doc.get('workerName'),
-                                doc.get('noLimit'),
-                                doc.get('weeklyLimit'),
-                                doc.get('dailyLimit'),
-                                doc.get('prepaid'),
-                                TabClosed,
-                                doc.get('id')
-                   )
+        c1 = camper_class.camper(app,"", doc)
+        campers.append(c1)                   
+
         if (doc.get('home_church') not in churches):
             churches.append(doc.get('home_church'))
         if (doc.get('contact_name') not in contact_names):
             contact_names.append(doc.get('contact_name'))    
-        campers.append(c1)
 
     campers.sort(key=lambda x: (x.lname, x.fname))
 
@@ -261,23 +194,14 @@ def show_tab():
         TabClosed     = False
         if (doc.get("closed_status") in ["Refund", "PaidInFull", "Donation"]):
             TabClosed = True
-        c1 = camper_class.camper(doc.get('camper_first_name'),
-                                doc.get('camper_last_name'),
-                                doc.get('home_church'),
-                                doc.get('contact_name'),
-                                doc.get('workerName'),
-                                doc.get('noLimit'),
-                                doc.get('weeklyLimit'),
-                                doc.get('dailyLimit'),
-                                doc.get('prepaid'),
-                                TabClosed,
-                                doc.get('id')
-                   )
+        c1 = camper_class.camper(app,"", doc)
+        campers.append(c1)
+        
         if (doc.get('home_church') not in churches):
             churches.append(doc.get('home_church'))
         if (doc.get('contact_name') not in contact_names):
             contact_names.append(doc.get('contact_name'))   
-        campers.append(c1)
+        
 
     for transaction in transactions:
         limit_warning = False

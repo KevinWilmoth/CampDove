@@ -75,12 +75,12 @@
         <form action="{{ url_for('edit_tab') }}" method="post">
           <table class = "snackshacktable">
             <tr>
-              <td><input type="text" id="camper_first_name" name="camper_first_name" placeholder="First Name" value="{{camperFirstName}}" required></td>
+              <td><input type="text" id="camper_first_name" name="camper_first_name" placeholder="First Name" value="{{camperFirstName}}"></td>
               <td><input type="text" id="camper_last_name" name="camper_last_name" placeholder="Last Name" value="{{camperLastName}}" required></td>
             </tr>
             <tr>
             <td>
-              <input type="list" list="churches" id="church" name="church" placeholder="Church Name" value="{{homeChurch}}" required>
+              <input type="list" list="churches" id="church" name="church" placeholder="Church Name" value="{{homeChurch}}">
               <datalist id="churches">
                 {% for item in churches %}
                   <option value="{{churches[loop.index0]}}">
@@ -88,7 +88,7 @@
               </datalist>
             </td>
             <td>
-              <input type="text" list="contact_names" id="contact_name" name="contact_name"  placeholder="Contact Name" value="{{contactName}}" required>
+              <input type="text" list="contact_names" id="contact_name" name="contact_name"  placeholder="Contact Name" value="{{contactName}}">
               <datalist id="contact_names">
                 {% for item in contact_names %}
                   <option value="{{contact_names[loop.index0]}}">
