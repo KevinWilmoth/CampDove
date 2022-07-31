@@ -1,0 +1,54 @@
+{
+"SnackShackItems": [
+    {
+        "id": "PopWater",
+        "description": "Pop or Water",
+        "price": 1
+    },
+    {
+        "id": "CandyBar",
+        "description": "Candy Bar Or Tic-Tacs",
+        "price": 1
+    },
+    {
+        "id": "IceCream",
+        "description": "Ice Cream",
+        "price": 0.58
+    },
+    {
+        "id": "ChipsAndCookies",
+        "description": "Chips or Cookie",
+        "price": 0.5
+    },
+    {
+        "id": "Popsicle",
+        "description": "Popsicle",
+        "price": 0.25
+    },
+    {
+        "id": "Pickle",
+        "description": "Pickle",
+        "price": 0.5
+    },
+    {
+        "id": "PopRing",
+        "description": "Pop Ring",
+        "price": 0.5
+    },
+    {
+        "id": "FruitSnacks",
+        "description": "Fruit Snack",
+        "price": 0.75
+    },
+    {
+        "id": "SlimJims",
+        "description": "Slim Jim, Cow Tale, or AirHead",
+        "price": 0.25
+    },
+    {
+        "id": "LaffyTaffy",
+        "description": "LaffyTaffy or Twizzler",
+        "price": 0.05
+    }
+]
+}
