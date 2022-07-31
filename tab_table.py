@@ -165,3 +165,18 @@ def delete_tab(id, app):
         raise 
 
     return 0
+
+def get_all_tabs():
+    try:
+        client    = cosmos_client.CosmosClient(HOST, {'masterKey': MASTER_KEY}, user_agent="CosmosDBPythonQuickstart", user_agent_overwrite=True)
+        db        = client.get_database_client(DATABASE_ID)
+        container = db.get_container_client(CONTAINER_ID)
+    except Exception as e:
+        raise
+    
+    try:
+        item_list = list(container.read_all_items(max_item_count=MAX_RETURN_ITEMS))
+    except Exception as e:
+        raise
+
+    return item_list
