@@ -201,7 +201,7 @@
               <td  {% if limitWarnings[loop.index0] %} style="background-color: yellow;"{% endif %} {% if overLimits[loop.index0] %} style="background-color: red; color: white;"{% endif %}>{{transactionTotals[loop.index0]}}</td> 
                   <form action="{{ url_for('delete_transaction') }}" method="post">
                       <input type="hidden" id="transaction_id" name="transaction_id" value="{{transactionList[loop.index0].id}}">
-                      <input type="hidden" id="id" name="id" value="{{id}}">
+                      <input type="hidden" id="id" name="id" value="{{currentCamper.id}}">
                       <td><button name="Delete" type="submit">Delete</button></td>   
                   </form>  
           </tr>
@@ -220,7 +220,7 @@
           <label for="paid">Paid In Full</label><br>
           <input type="radio" id="donation" name="close_tab_option" value="Donation">
           <label for="donation">Donation</label><br>
-          <input type="hidden" id="id" name="id" value="{{id}}">
+          <input type="hidden" id="id" name="id" value="{{currentCamper.id}}">
           <button name="CloseTab" type="submit">Close Tab</button>
         </form>  
         {% endif %}
