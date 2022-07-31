@@ -234,14 +234,14 @@ def show_tab():
     id           = request.form['id']
 
     loadError = False
-    try:
-        tabs         = tab_table.get_tabs(app)
-        transactions = transaction_table.get_transactions_for_camper(id,app)
-        tab          = tab_table.get_tab(id,app)
-        items        = item_table.get_items(app)
-    except Exception as e:
-        app.logger.critical("[show_tabs()] Error getting Database info")
-        loadError = True
+    #try:
+    tabs         = tab_table.get_tabs(app)
+    transactions = transaction_table.get_transactions_for_camper(id,app)
+    tab          = tab_table.get_tab(id,app)
+    items        = item_table.get_items(app)
+    #except Exception as e:
+    #    app.logger.critical("[show_tabs()] Error getting Database info")
+    #    loadError = True
 
 
     campers               = []

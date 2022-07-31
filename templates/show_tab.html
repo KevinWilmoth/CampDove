@@ -180,7 +180,7 @@
         <form action="{{ url_for('add_transaction') }}" method="post">
           <label for="transaction_amount">Transaction Amount &nbsp;$</label>
           <input id="transaction_amount" name="transaction_amount" min="0.00" step="0.01" max="500" type="number" value="0">
-          <input type="hidden" id="id" name="id" value="{{id}}">
+          <input type="hidden" id="id" name="id" value="{{currentCamper.id}}">
           <td><button name="Add" type="submit">Add</button></td>   
         </form>  
         {% endif %}        <br>
