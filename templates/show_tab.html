@@ -78,12 +78,12 @@
         <form action="{{ url_for('edit_tab') }}" method="post">
           <table class = "snackshacktable">
             <tr>
-              <td><input type="text" id="camper_first_name" name="camper_first_name" placeholder="First Name" value="{{camperFirstName}}"></td>
-              <td><input type="text" id="camper_last_name" name="camper_last_name" placeholder="Last Name" value="{{camperLastName}}" required></td>
+              <td><input type="text" id="camper_first_name" name="camper_first_name" placeholder="First Name" value="{{currentCamper.fname}}"></td>
+              <td><input type="text" id="camper_last_name" name="camper_last_name" placeholder="Last Name" value="{{currentCamper.lname}}" required></td>
             </tr>
             <tr>
             <td>
-              <input type="list" list="churches" id="church" name="church" placeholder="Church Name" value="{{homeChurch}}">
+              <input type="list" list="churches" id="church" name="church" placeholder="Church Name" value="{{currentCamper.church}}">
               <datalist id="churches">
                 {% for item in churches %}
                   <option value="{{churches[loop.index0]}}">
@@ -91,7 +91,7 @@
               </datalist>
             </td>
             <td>
-              <input type="text" list="contact_names" id="contact_name" name="contact_name"  placeholder="Contact Name" value="{{contactName}}">
+              <input type="text" list="contact_names" id="contact_name" name="contact_name"  placeholder="Contact Name" value="{{currentCamper.contactName}}">
               <datalist id="contact_names">
                 {% for item in contact_names %}
                   <option value="{{contact_names[loop.index0]}}">
@@ -101,7 +101,7 @@
             </tr>
             <tr>
               <td>
-                <input type="list" list="worker_names" id="worker_name" name="worker_name" placeholder="Snach Shack Worker" value="{{workerName}}" required>
+                <input type="list" list="worker_names" id="worker_name" name="worker_name" placeholder="Snach Shack Worker" value="{{currentCamper.worker}}" required>
                 <datalist id="worker_names">
                     <option value="Kevin Wilmoth"></option>
                     <option value="Mike Dearth"></option>
@@ -113,18 +113,18 @@
             </tr>
             <tr>
               <th><label for="weekly_limit">Weekly Limit</label></th>
-              <td>$ &nbsp;<input min="0.00" step="0.01" max="500" type="number" id="weekly_limit" value="{{weeklyLimitNum}}" name="weekly_limit"></td>
+              <td>$ &nbsp;<input min="0.00" step="0.01" max="500" type="number" id="weekly_limit" value="{{currentCamper.weeklyLimit}}" name="weekly_limit"></td>
             </tr>
             <tr>
               <th><label for="prepaid_amount">Prepaid Amount</label></th>
-              <td>$ &nbsp;<input min="0.00" step="0.01" max="500" type="number" id="prepaid_amount" value="{{prepaidAmountNum}}" name="prepaid_amount"></td>
+              <td>$ &nbsp;<input min="0.00" step="0.01" max="500" type="number" id="prepaid_amount" value="{{currentCamper.prepaid_amount}}" name="prepaid_amount"></td>
             </tr>
             <tr>
               <th><label for="no_limit">No Limit</label></th>
-              <td><input type="checkbox" id="no_limit" name="no_limit"  onchange="valueChanged()" value="True"{% if NoLimit %} checked{% endif %}></td>
+              <td><input type="checkbox" id="no_limit" name="no_limit"  onchange="valueChanged()" value="True"{% if currentCamper.noLimit %} checked{% endif %}></td>
             </tr>
             <tr>
-              <input type="hidden" id="id" name="id" value="{{id}}">
+              <input type="hidden" id="id" name="id" value="{{currentCamper.id}}">
               <td><button name="Add Camper Tab" type="submit">Edit Camper Tab</button></td>
               <td></td>
             </tr>
